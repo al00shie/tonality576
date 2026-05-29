@@ -1,6 +1,11 @@
+# PROVENANCE / REGENERATION SCRIPT — not part of the knit pipeline.
+# This documents how the committed data/humidity100.csv was produced from the raw
+# NCEP/NCAR reanalysis grid (data/humidity.tsv, ~218MB, not committed). The paper reads
+# the pre-wrangled cache instead. To regenerate: place humidity.tsv in data/, then run
+#   write.csv(wrangle_humidity(months = 100), "data/humidity100.csv", row.names = FALSE)
 #==============================================================
 # Read data
-humid_raw <- read_tsv("humidity.tsv", col_names = F, show_col_types = F)
+humid_raw <- read_tsv("data/humidity.tsv", col_names = F, show_col_types = F)
 #==============================================================
 # Static values
 RNG <- 2:95

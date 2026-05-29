@@ -33,12 +33,11 @@ slow <- T
 ```{r data, include = FALSE}
 if(slow){
   # # Import scripts
-  source("/R/data.R")
-  source("/R/humidity.R")
-  source("/R/plot.R")
-  source("/R/models.R")
-  source("/R/survival.R")
-  source("/R/family.R")
+  source("R/data.R")
+  source("R/plot.R")
+  source("R/models.R")
+  source("R/survival.R")
+  source("R/family.R")
 }
 ```
 

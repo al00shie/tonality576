@@ -170,8 +170,9 @@ tonality_map <- function(){
     labs(x = "Longitude", y = "Latitude", title = "Distribution of Language Tonal Systems") +
     theme(legend.position = "bottom")
 }
-# First, create the humidity data
-humidity_df_small <- wrangle_humidity(months = 5) %>% filter(mo == "Jun")
+# June 1949 humidity snapshot, read from the pre-wrangled cache (see R/humidity.R for how
+# humidity100.csv was generated from the raw humidity.tsv).
+humidity_df_small <- humidity_df %>% filter(mo == "Jun", year == 1949)
 # Then, create the map
 # Palette for tonality types
 humidity_tonal_palette <- c("grey20","blue","red")

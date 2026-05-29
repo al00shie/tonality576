@@ -2,7 +2,7 @@
 #       Import data
 # ========================
 # Import data
-tonal_df <- read.csv("tonal_df.csv")
+tonal_df <- read.csv("data/tonal_df.csv")
 # Make tonality type factor
 tonal_df$tonality_type <- as.factor(tonal_df$tonality_type)
 # Reorder factors
@@ -20,7 +20,7 @@ tonal_df$isnt_tonal <- !tonal_df$is_tonal
 tonal_df$isnt_complex_tonal <- !tonal_df$complex_tonal
 
 # Humidity data
-humidity_df <- read.csv("humidity100.csv")
+humidity_df <- read.csv("data/humidity100.csv")
 
 
 hum_cols_MM <- c(14,17,18,23:31)
@@ -46,7 +46,7 @@ hum_cols <- c(23:31)
 # tonalL_df[,hum_cols] <- tonalL_df[,hum_cols]*100
 # ========================================================================================================
 # Import alternate data
-tonalM_df <- read.csv("tonal_df_M.csv")
+tonalM_df <- read.csv("data/tonal_df_M.csv")
 # Make tonality type factor
 tonalM_df$tonality_type <- as.factor(tonalM_df$tonality_type)
 # Reorder factors
@@ -56,7 +56,7 @@ tonalM_df[,hum_cols] <- tonalM_df[,hum_cols]*100
 
 # ========================================================================================================
 # Import alternate data
-tonalS_df <- read.csv("tonal_df_stats.csv")
+tonalS_df <- read.csv("data/tonal_df_stats.csv")
 # Make tonality type factor
 tonalS_df$tonality_type <- as.factor(tonalS_df$tonality_type)
 # Reorder factors
@@ -82,7 +82,7 @@ tonalM_df$XDI <- (max(tonalM_df$max_H) - tonalM_df$max_H)
 # ========================================================================================================
 hum_cols_Q <- 23:42
 # Import window quantile data
-tonalQ_df <- read.csv("tonalQ_df.csv")
+tonalQ_df <- read.csv("data/tonalQ_df.csv")
 # Make tonality type factor
 tonalQ_df$tonality_type <- as.factor(tonalQ_df$tonality_type)
 # Reorder factors
@@ -92,7 +92,7 @@ tonalQ_df[,hum_cols_Q] <- tonalQ_df[,hum_cols_Q]*100
 # Add sd
 tonalQ_df$sd_H <- tonalM_df$sd_H
 # ========================================================================================================
-tonal_df_skewness <- read.csv("skewness.csv")
+tonal_df_skewness <- read.csv("data/skewness.csv")
 tonal_df_skewness$complex_tonal <- as.factor(tonal_df_skewness$complex_tonal)
 langs <- c("Austro-Asiatic","Austronesian","Trans-New Guinea")
 lang_labs <- c("Austro-\nAsiatic","Austro-\nnesian","Trans-New\n Guinea", "Mean")
