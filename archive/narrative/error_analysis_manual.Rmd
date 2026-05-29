@@ -1,0 +1,90 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Source scripts
+source("data.R")
+# Obtain raw data
+data_raw <- read_tsv("tone.tsv", show_col_types = F)
+# Get wrangled data
+tones_complex <- wrangle_data(data = data_raw, scheme = "complex")
+```
+
+```{r}
+glm_P_sq <- glm(data = tones_complex, 
+                   formula = complex_tonal ~ I(dist_equator^2), 
+                   family = binomial(link = probit))
+summary(glm_P_sq)
+```
+
+# Manual Error Analysis
+
+*Idea:* We try to manually find out why equator-close languages are atonal from other variables, and 
+add potential variables (for example, colonization history, case of extreme language erasure, etc.)
+In Thailand, it was under French Indochina, but it survived? So, need to learn more about each case and find potential sociopolitical factors to explain more variation. This would come from manually studying each case and history.
+
+In data visualization, we found that no tonal language existed farther than 30 latitude. So, we use that as our reference point in order to try to obtain perfect prediction. However, in practice, we might want to use alternative thresholds to really emphasize the outlier status. 
+
+A no-brainer: incorporate climatically outlier zones, where equator doesn't imply humidity, if possible.
+
+```{r}
+# Make a copy of the data
+outliers <- tones_complex
+```
+
+```{r}
+table(tones_complex$complex_tonal)
+```
+
+```{r, echo = F}
+# Threshold Outlier Status
+cases_by_threshold <- function(max_latitude){
+  total <- nrow(outliers %>% filter(dist_equator < max_latitude) %>% filter(tonality_type == 1))
+  total/nrow(tones_complex)
+}
+if(T){
+  data.frame(L = 1:30, Cases = map_dbl(1:30, cases_by_threshold)) %>%
+    ggplot() +
+    geom_point(aes(x = L, y = Cases))
+}
+```
+
+
+```{r}
+study <- outliers %>% 
+  filter(dist_equator < 30) %>% 
+  filter(dist_equator > 20) %>% 
+  filter(tonality_type == 1)
+```
+
+```{r, fig.height = 14, fig.width = 9}
+study %>% 
+  ggplot() + 
+  geom_histogram(aes(x = family, fill = family), stat = "count") + 
+  coord_flip() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+# Get ggplot coords
+world_coordinates <- map_data("world")
+# Plot
+study %>% 
+  ggplot() +
+  geom_map(data = world_coordinates, map = world_coordinates, 
+           aes(long, lat, map_id = region)) +
+  geom_point(aes(x = longitude, y = latitude),  alpha = 0.3, color = "red")
+```
+

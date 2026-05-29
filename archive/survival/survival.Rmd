@@ -1,0 +1,141 @@
+---
+title: "The Geographic Determinism of Complex Tone"
+author: "MA576 Final Project"
+date: "Ali Taqi"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+# Control booleans
+plot <- F
+table <- F
+```
+
+## Survival Analysis
+
+- Compare the EDF to an identity that tells us how humidity is distributed across the globe for a reference point. 
+- Alternatively, could make a complement variable of dryness which is the negative of humidity so we can see survival behavior.
+- We use UDI as the inverse of UHI because we emphasize the existence/possibility of higher humidities rather than all-around existence of humidity. Recall when author said, one can speak Cantonese in Siberia. However, Cantonese cannot develop there.
+- Account for Papuan by other linguistic explanations to obtain more closer estimate of survival rate. Use paper referenced regarding social structure.
+- Use of statistics other than mean to maximize convexity of the survival function could give us inference that the existence of hotter days, as the reading suggests, is how we should think of "ripe" conditions for the emergence of phonetic tone.
+
+```{r}
+library(survival)
+library(ggsurvfit)
+```
+
+```{r, fig.height = 7}
+source("data.R")
+source("plot.R")
+if(plot){ EDF_MH / EDF_UHI }
+```
+
+```{r}
+SurvTone <- Surv(tonal_df$UDI, tonal_df$isnt_tonal)
+
+s1 <- survfit(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df)
+
+survfit2(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+
+```
+
+```{r}
+summary(survfit(Surv(UDI, isnt_tonal) ~ 0, data = tonal_df), times = 3.5)
+summary(survfit(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df), times = 3.5)
+
+summary(survfit(Surv(UDI, isnt_complex_tonal) ~ 0, data = tonal_df), times = 3.5)
+summary(survfit(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df), times = 3.5)
+```
+
+```{r}
+SurvTone <- Surv(tonal_df$UDI, tonal_df$isnt_complex_tonal)
+
+s1 <- survfit(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df)
+
+survfit2(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+
+summary(survfit(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df), times = 2.95)
+```
+
+
+```{r, fig.height = 3}
+survfit2(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+survfit2(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "MH", y = "Overall survival probability") + 
+  add_confidence_interval()
+```
+
+
+\newpage
+
+# Discussion
+
+
+
+## Results
+
+
+## Conclusion
+
+- it appears that human languages are environmentally adaptive
+- in other words, speech articulation is ultimately a biological phenomenon.
+- the authors have not made specific claims vis-à-vis the time scale involved in this ecological adaptation.
+- previous work has suggested that aspects of language appear to be adapted to ecological and social niches. For example language like diversity is correlated with biodiversity and pathogen prevalence, and morphological complexity is related to population size. This fact regarding morphological complexity is especially prevalent with regards to our inclusion of the Papuan categorical variable. 
+
+
+\newpage
+
+# Bibliography
+
+> Dryer, M., & Haspelmath, M. (2011). The World Atlas of Language Structures Online. Retrieved from http://wals.info/
+
+\vspace{1em}
+
+> Everett, C., Moran, S., & Roberts, S. (2015). Climate, vocal folds, and tonal languages: Connecting the physiological and geographic dots. Proceedings of the National Academy of Sciences of the United States of America, 112(5), 1322-1327. https://doi.org/10.1073/pnas.1417413112
+
+\vspace{1em}
+
+> Hombert, J., Ohala, J., & Ewan, W. (1979). Phonetic explanations for the development of tones. Language, 55(1), 37-58.
+
+\vspace{1em}
+
+> Kalnay, E., et al. (1996). The NCEP/NCAR 40-Year Reanalysis Project. Bulletin of the American Meteorological Society. Retrieved from http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NCEP-NCAR/.CDAS-1/.MONTHLY/.Diagnostic/.above_ground/
+
+\vspace{1em}
+
+> Lupyan, G., & Dale, R. (2010). Language structure is partly determined by social structure. PLoS ONE, 5(1), e8559.
+
+\vspace{1em}
+
+> Maddieson, I. (2011). Tone. In M. Dryer & M. Haspelmath (Eds.), The World Atlas of Language Structures Online (Feature 13A). Max Planck Digital Library, Munich. Retrieved from http://wals.info/feature/13A
+

@@ -1,0 +1,113 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Source scripts
+source("data.R")
+# Obtain raw data
+data_raw <- readr::read_tsv("tone.tsv", show_col_types = F)
+# Get wrangled data
+tones_complex <- wrangle_data(data = data_raw, scheme = "complex")
+tones_complex$complex_tonal <- as.numeric(tones_complex$complex_tonal)
+```
+
+```{r}
+tonal_df <- read.csv("tonal_df.csv")
+```
+
+# Complex Tone
+
+```{r}
+summary(glm(complex_tonal ~ min_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(complex_tonal ~ lo_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(complex_tonal ~ MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(complex_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(complex_tonal ~ max_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+```
+
+\newpage
+
+# Any Tone
+
+```{r}
+summary(glm(is_tonal ~ min_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(is_tonal ~ lo_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(is_tonal ~ MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(is_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+summary(glm(is_tonal ~ max_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit)))
+```
+
+\newpage
+
+# ANOVA
+ 
+## Complex Tone
+
+```{r}
+glm_1 <- glm(complex_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit))
+anova(glm_1)
+glm_2 <- glm(complex_tonal ~ isAustro + hi_MH, 
+             data = tonal_df, family = quasibinomial(link = probit))
+anova(glm_2)
+```
+
+\newpage
+
+## Any Tonal
+
+```{r}
+glm_1 <- glm(is_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit))
+anova(glm_1)
+glm_2 <- glm(is_tonal ~ isAustro + hi_MH, 
+             data = tonal_df, family = quasibinomial(link = probit))
+anova(glm_2)
+```
+
+\newpage
+
+# Predicitions
+
+```{r}
+glm_c_hi <- glm(complex_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit))
+glm_a_hi <- glm(is_tonal ~ hi_MH + isAustro, 
+             data = tonal_df, family = quasibinomial(link = probit))
+
+```
+
+```{r}
+library(caret)
+#predictions <- predict(glm_a_hi, tonal_df, type = "response")
+#confusionMatrix(tonal_df$complex_tonal, predictions)
+```
+
+
+```{r}
+#plot(predict(glm_c_hi, tonal_df, type = "response"))
+#plot(predict(glm_a_hi, tonal_df, type = "response"))
+```
+

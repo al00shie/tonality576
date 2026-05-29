@@ -1,0 +1,213 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+tonal_df_skewness <- read.csv("skewness.csv")
+hist(tonal_df_skewness$skew_H)
+hist((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H)
+hist((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H)
+mean(tonal_df_skewness$skew_H)
+mean((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H)
+mean((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H)
+skewness((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H)
+skewness((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H)
+```
+
+```{r}
+delta <- tonalS_df$med_H - tonalS_df$MH
+mean(delta)
+NCT <- tonalS_df %>% filter(complex_tonal == 0)
+CT <- tonalS_df %>% filter(complex_tonal == 1)
+mean(NCT$med_H - NCT$MH)
+mean(CT$med_H - CT$MH)
+```
+```{r}
+NCT <- tonalK_df %>% filter(complex_tonal == 0)
+CT <- tonalK_df %>% filter(complex_tonal == 1)
+mean(NCT$Q7 - NCT$Q3)
+mean(CT$Q7 - CT$Q3)
+mean(NCT$MH - CT$MH)
+mean(NCT$Q3 - CT$Q3)
+```
+
+```{r}
+mean((NCT$Q3 - NCT$MH) - (CT$Q3 - CT$MH))
+```
+
+
+```{r}
+df_sample <- tonalS_df %>%
+    group_by(family) %>%
+    sample_n(1)
+NCT <- df_sample %>% filter(complex_tonal == 0)
+CT <- df_sample %>% filter(complex_tonal == 1)
+mean((NCT$med_H - NCT$MH) -  (CT$med_H - CT$MH))
+NCT$med_H
+```
+
+```{r}
+NCT <- tonalS_df %>% filter(complex_tonal == 0)
+CT <- tonalS_df %>% filter(complex_tonal == 1)
+mean((NCT$med_H - NCT$MH)) -  mean(CT$med_H - CT$MH)
+```
+
+
+```{r}
+tonal_df_kurt <- read.csv("kurt.csv")
+hist(tonal_df_kurt$kurt_H - 3, breaks = 100)
+hist((tonal_df_kurt %>% filter(complex_tonal == 0))$kurt_H - 3, breaks = 100)
+hist((tonal_df_kurt %>% filter(complex_tonal == 1))$kurt_H - 3, breaks = 100)
+print("ALL MEDIAN")
+median((tonal_df_kurt)$kurt_H - 3)
+print("NC")
+median((tonal_df_kurt %>% filter(complex_tonal == 0))$kurt_H - 3)
+print("C")
+median((tonal_df_kurt %>% filter(complex_tonal == 1))$kurt_H) -3
+print("ALL MEAN")
+mean(tonal_df_kurt$kurt_H)-3
+print("NC")
+mean((tonal_df_kurt %>% filter(complex_tonal == 0))$kurt_H )- 3
+print("C")
+mean((tonal_df_kurt %>% filter(complex_tonal == 1))$kurt_H) -3
+```
+
+```{r}
+tonal_df_skewness <- read.csv("skewness.csv")
+hist(tonal_df_skewness$skew_H, breaks = 100)
+hist((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H, breaks = 30)
+hist((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H, breaks = 30)
+print("ALL MEDIAN")
+median((tonal_df_skewness)$skew_H)
+print("NC")
+median((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H )
+print("C")
+median((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H) 
+print("ALL MEAN")
+mean(tonal_df_skewness$skew_H)
+print("NC")
+mean((tonal_df_skewness %>% filter(complex_tonal == 0))$skew_H )
+print("C")
+mean((tonal_df_skewness %>% filter(complex_tonal == 1))$skew_H) 
+```
+
+```{r}
+filt_diff <- function(bool){
+  curr <- tonalK_df %>% filter(complex_tonal == bool)
+  #c(mean(tonalK_df$Q2 - tonalK_df$MH), mean(curr$Q2 - curr$MH))
+}
+filt_diff(0)
+filt_diff(1)
+
+
+```
+```{r}
+filt_diff_col <- function(bool, col1, col2 = "MH"){
+  curr <- tonalK_df %>% filter(complex_tonal == bool)
+  #c(mean(tonalK_df[,col1] - tonalK_df[,col2]), mean(curr[,col1] - curr[,col2]))
+  return(curr[,col1] - curr[,col2])
+}
+```
+
+```{r}
+NCT <- tonalQ_df %>% filter(complex_tonal == 0)
+CT <- tonalQ_df %>% filter(complex_tonal == 1)
+mean(CT$Q1 + DMU) - mean(NCT$Q1) 
+mean(CT$Q2) - mean(NCT$Q2 - DMU) 
+mean(CT$Q3) - mean(NCT$Q3 - DMU) 
+mean(CT$Q4) - mean(NCT$Q4 - DMU) 
+mean(CT$Q5) - mean(NCT$Q5 - DMU) 
+mean(CT$Q6) - mean(NCT$Q6 - DMU) 
+mean(CT$Q7) - mean(NCT$Q7 - DMU) 
+mean(CT$Q8) - mean(NCT$Q8 - DMU) 
+mean(CT$Q9) - mean(NCT$Q9 - DMU) 
+```
+
+
+```{r}
+hist(filt_diff_col(0, "Q5"))
+mean(filt_diff_col(0, "Q5"))
+hist(filt_diff_col(1, "Q5"))
+mean(filt_diff_col(1, "Q5"))
+```
+
+```{r}
+hist(filt_diff_col(0, "Q3","Q5"))
+mean(filt_diff_col(0, "Q3","Q5"))
+hist(filt_diff_col(1, "Q3","Q5"))
+mean(filt_diff_col(1, "Q3","Q5"))
+```
+
+```{r}
+filt_diff_col(0, "Q1") 
+filt_diff_col(1, "Q1")
+```
+```{r}
+filt_diff_col(0, "Q5") 
+filt_diff_col(1, "Q5")
+```
+
+
+```{r}
+diff_col <- function(col1, col2 = "MH"){
+  filt_diff_col(0, col1, col2) - filt_diff_col(1, col1, col2)
+}
+```
+
+```{r}
+quantile_colnames <- paste("Q",1:9, sep = "")
+#plot(map_dbl(quantile_colnames, diff_col))
+
+diff_col("Q1")
+diff_col("Q2", "Q2")
+```
+```{r}
+hist((tonalK_df %>% filter(complex_tonal == 0))$Q3)
+hist((tonalK_df %>% filter(complex_tonal == 1))$Q3)
+```
+
+
+```{r}
+sample_diff_skew <- function(i){
+  df_sample <- tonalQ_df %>%
+    group_by(family) %>%
+    sample_n(1)
+  skew_NC <- skewness(df_sample[which(df_sample$complex_tonal == 0),]$MH)
+  skew_C  <- skewness(df_sample[which(df_sample$complex_tonal == 1),]$MH)
+  return(skew_NC - skew_C)
+}
+```
+
+```{r}
+res <- map_dbl(1:1000, .f = sample_diff_skew)
+```
+
+```{r}
+hist(res)
+mean(res)
+```

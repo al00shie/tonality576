@@ -1,0 +1,87 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+source("match.R")
+```
+
+```{r}
+seq_probs_25 <- seq(47.5, 100, by = 2.5)/100
+seq_probs_25
+#length(seq_probs)
+quantile(humidity_df$f, probs = seq_probs_25)[22]
+```
+```{r}
+# Get bottom MH values
+FQ <- function(i){
+  fx <- function(nx, ny){  
+    # Get humidity for those coords
+    hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+    # Get quantiles
+    QS <-  quantile(hum_coords$f, probs = seq_probs_25)
+    # Select values
+    hum_coords <- hum_coords %>% filter(f < QS[i + 1]) %>% filter(f > QS[i - 1])
+    # Get stat
+    H_stat <- mean(hum_coords$f)
+    return(H_stat)
+  }
+  return(fx)
+}
+```
+
+```{r}
+is <- 2:21
+LS_FXNS <- map(is, FQ)
+f_i <- function(i){LS_FXNS[[i]]}
+```
+
+```{r}
+tonal_df <- tonal_df %>%
+  mutate(Q1  = df_MH(near_long, near_lat, fxn = f_i(1)))%>%
+  mutate(Q2  = df_MH(near_long, near_lat, fxn = f_i(2)))%>%
+  mutate(Q3  = df_MH(near_long, near_lat, fxn = f_i(3)))%>%
+  mutate(Q4  = df_MH(near_long, near_lat, fxn = f_i(4)))%>%
+  mutate(Q5  = df_MH(near_long, near_lat, fxn = f_i(5)))%>%
+  mutate(Q6  = df_MH(near_long, near_lat, fxn = f_i(6)))%>%
+  mutate(Q7  = df_MH(near_long, near_lat, fxn = f_i(7)))%>%
+  mutate(Q8  = df_MH(near_long, near_lat, fxn = f_i(8)))%>%
+  mutate(Q9  = df_MH(near_long, near_lat, fxn = f_i(9)))%>%
+  mutate(Q10 = df_MH(near_long, near_lat, fxn = f_i(10)))%>%
+  mutate(Q11 = df_MH(near_long, near_lat, fxn = f_i(11)))%>%
+  mutate(Q12 = df_MH(near_long, near_lat, fxn = f_i(12)))%>%
+  mutate(Q13 = df_MH(near_long, near_lat, fxn = f_i(13)))%>%
+  mutate(Q14 = df_MH(near_long, near_lat, fxn = f_i(14)))%>%
+  mutate(Q15 = df_MH(near_long, near_lat, fxn = f_i(15)))%>%
+  mutate(Q16 = df_MH(near_long, near_lat, fxn = f_i(16)))%>%
+  mutate(Q17 = df_MH(near_long, near_lat, fxn = f_i(17)))%>%
+  mutate(Q18 = df_MH(near_long, near_lat, fxn = f_i(18)))%>%
+  mutate(Q19 = df_MH(near_long, near_lat, fxn = f_i(19)))%>%
+  mutate(Q20 = df_MH(near_long, near_lat, fxn = f_i(20)))
+```
+
+```{r}
+write.csv(tonal_df, file = "tonalQqqqq_df.csv", row.names = F)
+```

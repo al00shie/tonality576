@@ -1,0 +1,104 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+# k-SD Means
+
+### Coefficient Plot
+
+```{r}
+get_k_coefs <- function(k){
+  coefs <- summary(get_model_k(k, T))$coefficients[3:5]
+  c(bf1 = coefs[1], bf2 = coefs[2], bf3 = coefs[3])
+}
+```
+
+```{r}
+fam_coefs_k <- map_dfr(.x = seq_ks, get_k_coefs)
+df_fam_coefs_k <- data.frame(k = rep(seq_ks), 
+                beta = c(fam_coefs_k$bf1, fam_coefs_k$bf2, fam_coefs_k$bf3), 
+                family = c(rep("Austro-Asiatic",30), 
+                           rep("Austronesian",30), 
+                           rep("Trans-New Guinea",30)))
+df_sum_k <- df_fam_coefs_k %>% group_by(k) %>% summarize(sum_k = sum(beta))
+sum_rows_k <- data.frame(k = seq_ks,
+                       beta = (df_sum_k$sum_k)/3,
+                       family = rep("Average",30))
+df_fam_coefs_k <- rbind(df_fam_coefs_k, sum_rows_k)
+```
+
+```{r}
+# Make tonality type factor
+df_fam_coefs_k$family <- as.factor(df_fam_coefs_k$family)
+# Reorder factors
+df_fam_coefs_k$family <- factor(df_fam_coefs_k$family, 
+                                levels=c("Austro-Asiatic",
+                                         "Austronesian",
+                                         "Trans-New Guinea",
+                                         "Average"))
+# Plot params
+PAL_famcoefs <- c("red","blue","green","black")
+coef_plot_k <-df_fam_coefs_k %>%
+  ggplot(mapping = aes(x = k, y = beta, group = family, color = family)) +
+  geom_point() + 
+  geom_line() + ylim(-0.55, -1.21) +
+  scale_color_manual(name = "Family", values = PAL_famcoefs)
+
+coef_plot_k
+```
+### Mean Plot
+
+```{r}
+get_k_mean <- function(k){
+  filt <- tonalM_df %>% 
+    filter(isTransGuinean | isAusAsi | isAustro) %>% 
+    group_by(family) %>% 
+    summarize(mean_fam = mean(MH + k * sd_H))
+  return(data.frame(mean = filt$mean_fam, fam = filt$family, k = k))
+}
+```
+
+```{r}
+kmean_df <- map_dfr(.x = seq_ks, .f = get_k_mean)
+```
+
+```{r}
+mean_plot_k <- kmean_df %>% 
+  ggplot(mapping = aes(x = k, y = mean, group = fam, color = fam)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(name = "Family", values = PAL_famcoefs[1:3])
+  
+mean_plot_k
+```
+
+## Final Plot
+
+```{r, fig.height = 5}
+mean_plot_k / coef_plot_k #/ sum_plot_k
+```

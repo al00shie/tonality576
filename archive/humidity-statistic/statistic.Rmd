@@ -1,0 +1,124 @@
+---
+title: "The Geographic Determinism of Complex Tone"
+author: "MA576 Final Project"
+date: "Ali Taqi"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+#source("plot.R")
+#source("models.R")
+```
+
+```{r}
+source("match.R")
+```
+
+```{r}
+# Get the MH for each coordinate
+tonal_df <- tonal_df %>%
+  mutate(med_H = df_MH(near_long, near_lat, fxn = fx_median)) %>%
+  mutate(var_H = df_MH(near_long, near_lat, fxn = fx_var))
+```
+
+```{r}
+fx_median <- function(nx, ny){  
+  # Get humidity for those coords
+  hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+  # Get stat
+  H_stat <- median(hum_coords$f)
+  return(H_stat)
+}
+fx_var <- function(nx, ny){  
+  # Get humidity for those coords
+  hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+  # Get stat
+  H_stat <- var(hum_coords$f)
+  return(H_stat)
+}
+```
+
+
+```{r}
+# Get bottom MH values
+FQ_WIN <- function(i){
+  fx <- function(nx, ny){  
+    # Get humidity for those coords
+    hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+    # Get quantiles
+    QS <-  quantile(hum_coords$f, probs = (1:9)/10)
+    if(i == 1){
+      H_stat <- mean((hum_coords %>% filter(f < QS[i+1]))$f)
+    }
+    else if(i == 9){
+      H_stat <- mean((hum_coords %>% filter(f > QS[i-1]))$f)
+    }
+    else{
+      H_stat <- mean((hum_coords %>% filter(f < QS[i+1]) %>% filter(f > QS[i-1]))$f)
+    }
+    # Get stat
+    return(H_stat)
+  }
+  return(fx)
+}
+```
+
+```{r}
+# Get bottom MH values
+FQ <- function(i){
+  fx <- function(nx, ny){  
+    # Get humidity for those coords
+    hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+    # Get quantiles
+    QS <-  quantile(hum_coords$f, probs = (1:9)/10)
+    # Get stat
+    H_stat <- mean((hum_coords %>% filter(f < QS[i]) %>% filter(f > QS[i]))$f)
+    return(H_stat)
+  }
+  return(fx)
+}
+```
+
+
+```{r}
+fx_q_1 <- FQ(1)
+fx_q_2 <- FQ(2)
+fx_q_3 <- FQ(3)
+fx_q_4 <- FQ(4)
+fx_q_5 <- FQ(5)
+fx_q_6 <- FQ(6)
+fx_q_7 <- FQ(7)
+fx_q_8 <- FQ(8)
+fx_q_9 <- FQ(9)
+```
+
+```{r}
+fxw_q_1 <- FQ_WIN(1)
+fxw_q_2 <- FQ_WIN(2)
+fxw_q_3 <- FQ_WIN(3)
+fxw_q_4 <- FQ_WIN(4)
+fxw_q_5 <- FQ_WIN(5)
+fxw_q_6 <- FQ_WIN(6)
+fxw_q_7 <- FQ_WIN(7)
+fxw_q_8 <- FQ_WIN(8)
+fxw_q_9 <- FQ_WIN(9)
+```
+
+```{r}
+write.csv(tonal_df, file = "tonal_df_stats.csv", row.names = F)
+```

@@ -1,0 +1,150 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+# Control booleans
+plot <- T
+table <- F
+```
+
+```{r}
+colnames(tonalM_df) <- colnames(tonalH_df)
+tonalH_df <- tonalM_df
+```
+
+
+```{r}
+table1 <- tonalH_df %>% 
+  group_by(complex_tonal) %>% 
+  summarize(mean1 = mean(H10),
+            mean2 = mean(H20),
+            mean3 = mean(H30),
+            mean4 = mean(H40),
+            mean5 = mean(H50),
+            mean6 = mean(H60),
+            mean7 = mean(H70),
+            mean8 = mean(H80),
+            mean9 = mean(H90))
+```
+
+
+
+```{r}
+if(F){
+summary(glm(complex_tonal ~ tonalH_df[,23], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,24], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,25], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,26], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,27], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,28], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,29], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,30], data = tonalH_df, family = quasibinomial))
+summary(glm(complex_tonal ~ tonalH_df[,31], data = tonalH_df, family = quasibinomial))
+}
+#summary(glm(complex_tonal ~ tonalH_df[,32], data = tonalH_df, family = binomial))
+#summary(glm(complex_tonal ~ tonalH_df[,33], data = tonalH_df, family = binomial))
+```
+
+```{r}
+
+  glm(complex_tonal ~ tonalH_df[,23] + isAustro, data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,24], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,25], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,26], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,27], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,28], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,29], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,30], data = tonalH_df, family = quasibinomial)$deviance
+  glm(complex_tonal ~ tonalH_df[,31], data = tonalH_df, family = quasibinomial)$deviance
+
+
+```
+```{r}
+if(T){
+  resp <- tonalH_df$complex_tonal
+  ylimdev <- c(470,390)
+} else{
+  resp <- tonalH_df$is_tonal
+  ylimdev <- c(715,650)
+}
+
+currd_i <- function(i){glm(resp ~ tonalH_df[,i] + isAustro, data = tonalH_df, family = quasibinomial)$deviance}
+currb1_i <- function(i){glm(resp ~ tonalH_df[,i] + isAustro, data = tonalH_df, family = quasibinomial)$coefficients[1]}
+currb2_i <- function(i){glm(resp ~ tonalH_df[,i] + isAustro, data = tonalH_df, family = quasibinomial)$coefficients[2]}
+currb3_i <- function(i){glm(resp ~ tonalH_df[,i] + isAustro, data = tonalH_df, family = quasibinomial)$coefficients[3]}
+```
+
+```{r}
+xss <- 23:31
+ds <- map_dbl(.x = xss, .f = currd_i)
+b1s <- map_dbl(.x = xss, .f = currb1_i)
+b2s <- map_dbl(.x = xss, .f = currb2_i)
+b3s <- map_dbl(.x = xss, .f = currb3_i)
+p1 <- data.frame(xss = (xss-22) , b1s, b2s, b3s) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, ds)) + ylim(ylimdev)+ theme(legend.position = "none")
+p2 <- data.frame(xss = (xss-22) , b1s, b2s, b3s) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b2s))+ ylim(0,2)+ theme(legend.position = "none")
+p3 <- data.frame(xss = (xss-22) , b1s, b2s, b3s) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b3s))+ theme(legend.position = "none")
+p4 <- data.frame(xss = (xss-22) , b1s, b2s, b3s) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b1s))+ ylim(-5,0) + theme(legend.position = "none")
+(p1+p2)/(p3 + p4)
+
+```
+
+```{r}
+currd_i <- function(i){glm(resp ~ tonalH_df[,i] , data = tonalH_df, family = quasibinomial)$deviance}
+currb1_i <- function(i){glm(resp ~ tonalH_df[,i] , data = tonalH_df, family = quasibinomial)$coefficients[1]}
+currb2_i <- function(i){glm(resp ~ tonalH_df[,i] , data = tonalH_df, family = quasibinomial)$coefficients[2]}
+currb3_i <- function(i){glm(resp ~ tonalH_df[,i] , data = tonalH_df, family = quasibinomial)$coefficients[3]}
+```
+
+
+```{r}
+xss <- 23:31
+ds_ <- map_dbl(.x = xss, .f = currd_i)
+b1s_ <- map_dbl(.x = xss, .f = currb1_i)
+b2s_ <- map_dbl(.x = xss, .f = currb2_i)
+b3s_ <- map_dbl(.x = xss, .f = currb3_i)
+p1_ <- data.frame(xss = (xss-22) , b1s_, b2s_, b3s_) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, ds_)) + ylim(ylimdev) + theme(legend.position = "none")
+p2_ <- data.frame(xss = (xss-22) , b1s_, b2s_, b3s_) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b2s_)) + ylim(0,2)+ theme(legend.position = "none")
+p3_ <- data.frame(xss = (xss-22) , b1s_, b2s_, b3s_) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b3s_))+ theme(legend.position = "none")
+p4_ <- data.frame(xss = (xss-22) , b1s_, b2s_, b3s_) %>% ggplot(aes(color = xss)) +  geom_point(aes(xss, b1s_))+ ylim(-5,0) + theme(legend.position = "none")
+(p1_+p2_)/(p3_+p4_)
+```
+
+```{r}
+(p1_ +  p1) 
+(p2_ +  p2)
+(p4_ +  p4) 
+```
+
+```{r}
+df1 <- data.frame(t(table1)[2:10,], y = 1:9)
+```
+
+
+```
+

@@ -1,0 +1,280 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+library(MASS)
+```
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+UREP <- tonalM_df %>% filter(MH < 1.1) %>% filter(MH > 0.7)
+```
+
+```{r}
+it <- 500
+coefs <- c()
+for(i in 1:it){
+  UREP_sample <- sample_n(UREP, size = 80, replace = T)
+  MH_def_BOOT <- rbind(tonal_df, UREP_sample)
+  model <- glm(complex_tonal ~ MH, family = quasibinomial, data = MH_def_BOOT)
+  coefs <- c(coefs, model$coefficients[2])
+}
+hist(coefs)
+```
+
+```{r}
+it <- 1000
+sim_df <- data.frame(coef = c(0), disp = c(0), dev = c(0), nulldev = c(0), deltadev = c(0))
+for(i in 1:it){
+  UREP_sample <- sample_n(UREP, size = 80, replace = T)
+  MH_def_BOOT <- rbind(tonalM_df, UREP_sample)
+  model <- glm(complex_tonal ~ M80 + isAustro, family = quasibinomial(link = "probit"), data = MH_def_BOOT)
+  dispersion <- sum(residuals(model, type = "pearson")^2) / model$df.residual
+  curr_row <- c(model$coefficients[2], dispersion, model$deviance, model$null.deviance, model$deviance - model$null.deviance)
+  sim_df[i,] <- curr_row
+}
+```
+
+```{r}
+token <- rbind(tonalM_df, UREP, UREP)
+attach(tonal_df)
+
+summary(glm(complex_tonal ~ M80 + family, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(tonality_type ~ M80 + family, family = quasibinomial(link = "probit"), data = token))
+#summary(model)
+```
+
+```{r}
+fammod <- glm(is_tonal ~ family, family = quasibinomial(link = "probit"), data = tonalM_df)
+summarymod <- summary(fammod)
+summarymod
+coefs <- summarymod$coefficients
+coefs[which(coefs[,4] < 0.05),]
+```
+
+```{r}
+fammod <- glm(complex_tonal ~ MH + family, family = quasibinomial(link = "probit"), data = tonalM_df) #%>% filter(is_tonal == T))
+summarymod <- summary(fammod)
+summarymod
+coefs <- summarymod$coefficients
+coefs[which((coefs[,"Pr(>|t|)"] < 0.1) & (coefs[,"Estimate"] < 0)),]
+```
+```{r}
+coefs[which((coefs[,"Pr(>|t|)"] < 0.1) & (coefs[,"Estimate"] > 0)),]
+```
+
+
+```{r}
+family_df <- tonalM_df
+```
+
+```{r}
+family_df <- family_df %>% 
+  mutate(isAusAsi = (family == "Austro-Asiatic")) %>%
+  mutate(isAustron = (family == "Austronesian")) %>%
+  mutate(isTransGuinean = (family == "Trans-New Guinea"))
+```
+
+```{r}
+family_table <- function(family_str){table((tonal_df %>% filter(family == family_str))$tonality_type)}
+```
+
+```{r}
+family_table("Niger-Congo")
+family_table("Trans-New Guinea")
+family_table("Austro-Asiatic")
+family_table("Austronesian")
+```
+
+```{r}
+NG <- family_df %>% filter(family == "Trans-New Guinea")
+range(NG$longitude)
+range(NG$latitude)
+attach(NG)
+vals <- I(min_H/max_H)
+cor(complex_tonal, vals)
+plot(MH, vals)
+table(vals, complex_tonal)
+```
+
+```{r}
+NG <- family_df %>% filter(family == "Austro-Asiatic")
+range(NG$MH)
+attach(NG)
+vals <- I(min_H/max_H)
+cor(complex_tonal, vals)
+plot(MH, vals)
+plot(vals, complex_tonal)
+```
+```{r}
+attach(tonalM_df)
+vals <- I(min_H/max_H)
+cor(complex_tonal, vals)
+plot(MH, vals)
+plot(vals, complex_tonal)
+```
+```{r}
+NG <- tonalM_df %>% mutate(ratio = min_H/max_H)
+NG %>% ggplot() + geom_boxplot(mapping = aes(x = ratio, color = complex_tonal, group = complex_tonal))
+NG %>% ggplot() + geom_point(mapping = aes(x = MH, y = ratio, color = complex_tonal))
+```
+
+
+```{r}
+i <- 1
+nx <- NG[i,]$near_long; ny <- NG[i,]$near_lat
+```
+
+```{r}
+NXS <- NG[,"near_long"]; NYS <- NG[,"near_lat"]
+```
+
+
+```{r}
+NGHUMS <- humidity_df %>% filter(x %in% NXS) %>% filter(y %in% NYS) 
+hums <- (NGHUMS$f)
+```
+
+```{r}
+min(hums)/max(hums)
+```
+
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~ MH + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+summary(fam_mod_f)
+fam_mod_f <- glm(complex_tonal ~ M70 + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+summary(fam_mod_f)
+fam_mod_f <- glm(complex_tonal ~ M80 + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+summary(fam_mod_f)
+fam_mod_f <- glm(complex_tonal ~ max_H + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+summary(fam_mod_f)
+```
+```{r}
+plot(tonalM_df$var_H, tonal_df$MH)
+boxplot(tonal_df$complex_tonal, tonalM_df$var_H)
+boxplot(tonalM_df$complex_tonal, tonal_df$MH)
+plot(tonalM_df$complex_tonal, tonal_df$MH)
+```
+
+```{r}
+family_df <- family_df %>% mutate(AboveAvgMH = (MH > 1.85))
+family_df <- family_df %>% mutate(BelowAvgMH = (MH < 1.15))
+family_df <- family_df %>% mutate(SuperBelowAvgMH = (MH < 1))
+quantile(family_df$MH)
+```
+```{r}
+fam_mod_f <- glm(complex_tonal ~ M50 + var_H + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~ MH + var_H + I(var_H * BelowAvgMH)+ isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+```{r}
+fam_mod_f <- glm(complex_tonal ~ I((max_H - min_H)) + MH + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+```{r}
+BMH <- family_df %>% filter(BelowAvgMH)
+boxplot(BMH$complex_tonal, BMH$var_H)
+```
+
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~ I((max_H - min_H)/max_H) + MH + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+
+```{r}
+attach(tonalS_df)
+tonalM_df <- cbind(tonalM_df, tonalS_df[,c("med_H","var_H")])
+```
+
+```{r}
+
+```
+
+
+```{r}
+family_df <- family_df %>%
+  mutate(isAlgic = (family == "Algic")) %>%
+  mutate(isAraw = (family == "Arawakan")) %>%
+  mutate(isAusAsi = (family == "Austro-Asiatic")) %>%
+  mutate(isAustron = (family == "Austronesian")) %>%
+  mutate(isESud = (family == "Eastern Sudanic")) %>%
+  mutate(isIndoEu = (family == "Indo-European")) %>%
+  mutate(isNakh = (family == "Nakh-Daghestanian")) %>%
+  mutate(isNigCong = (family == "Niger-Congo")) %>%
+  mutate(isUto = (family == "Uto-Aztecan"))
+```
+
+```{r}
+#fam_mod_b <- glm(formula = is_tonal ~ UHI + isAlgic + isAraw + isAusAsi + isAustron + isESud + isIndoEu + isNakh + isNigCong + isUto, family = binomial(link = "probit"), data = family_df)
+fam_mod_b <- glm(formula = complex_tonal ~ UHI + isAusAsi + isAustron + isNigCong, family = binomial(link = "probit"), data = family_df)
+summary(fam_mod_b)
+```
+
+
+```{r}
+sim_df %>% 
+  ggplot() +
+  geom_jitter(aes(x = deltadev, y = nulldev, color = coef)) +
+  coord_flip()
+```
+
+```{r}
+hist(sim_df$disp, breaks = 50)
+t.test(x = sim_df$disp, mu = 0.9569575, alternative = "less")
+```
+
+```{r}
+it <- 10000
+coefs <- c()
+for(i in 1:it){
+  UREP_sample <- sample_n(UREP, size = 80, replace = T)
+  MH_def_BOOT <- rbind(tonal_df, UREP_sample)
+  model <- glm(complex_tonal ~ max_H, family = quasibinomial, data = MH_def_BOOT)
+  coefs <- c(coefs, model$coefficients[2])
+}
+hist(coefs)
+```

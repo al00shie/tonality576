@@ -1,0 +1,347 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+# Control booleans
+plot <- T
+```
+
+# Abstract
+
+>> In 2014, a paper showed that theres a relationship between humidity and tonal language. In this project, we attempt to recreate the results from that project. Additionally, we investigate further factors that could furher explain the emergence of tonal languages. Two additional variations to the initial paper are explored. First, we explore the usage of alternative statistics to the mean when using humidity as a predictor, to see if there is more explanatory power and the effect size. Second, the factoring in of the Austronesian family attribute as a categorical variable, which we find to be significant in explaining a significant amount of variation due to its unique standing as a language family, which gives it its outlier status.  
+
+# Introduction
+
+## Significance: Linguistics and Environmental Adjustment
+
+- A standard assumption in linguistics is that sound systems are immune to ecological effects
+- Significance: the sound systems of human languages are not generally thought to be ecological adaptive. We offer the most extensive evidence to date that such a similar in fact adaptive and can't be influenced by climactic factors. [...] We conclude that human sound systems like those of some other species are influenced by environmental variables.
+
+## Physiology of Phonation
+
+- The mere inhalation of dry air impacts vocal cord physiology and results on clear effects on phonation.
+- Low humidity is reported to be the cause of sore throat and 30% of cases.
+- Clearly, the human larynx susceptible to environmental aridity.
+- Frigid air is always dry, regardless of saturation level i.e. relative humidity, do you know which reduce water vapor capacity era -10°C which is saturation of 2.3 g/m³ where is air at 30°C does so 30.4 g/m³.
+- In other words a difference of 40° translates into a 13 full difference in water vapor capacity
+
+## Phonemic Tone
+- Relatively precise manipulation of the vocal cord associated with tone, especially with a complex tone, should be more difficult to produce and achieve an arid climate
+- languages with anemic to necessitate voicing it relatively precise pitches rotten individuals normal range. As noted in crossing rustic surveys are fundamental frequency, the typical pitch range for most human mouth is about 100 Hz. That just noticeable difference between lexical notes is about 10 Hz. Across town pitch difference of at least 20 to 30 Hz is considered marginally sufficient to achieve phonemic contrast, i.e. separation/discrimination.
+- in context of our research, this is important because languages with more than three level phonemic tones present articulatory and perceptual challenges, I suggestion that I supported by work on the acquisition of tonality.
+
+## Author's Hypothesis
+- the authors predict or hypothesize that languages should not be maladaptive vis-à-vis ambient air conditions. That is, like other forms of human behavior the articulation of phones [sic] should evolve in accordance with ecological factors a directly impinge on their production. When pacifically complex tone into a lesser extent of anemic tone requiring to comparably precise manipulation of fundamental frequency should be disfavored and extremely Eric contacts
+- furthermore, your authors predicted this tendency should be particularly apparent in frigid climates given the extremely reduced water vapor capacity of cold air.
+- other languages of the complex stone can be spoken in any geographic context – for instance, Cantonese speakers are more than capable of communicating in the Siberian tundra – it seems less likely that such languages with develop their complex Denali in areas with typically frigid and or desiccated ambient air, given the factors mentioned above.
+- ease of articulation, perception, and transmission is already known to be a strong motivator in the problems of some sounds in the world languages – for instance, labial and velar plosives
+- This hypothesis does not predict that languages should necessarily trend diachronically towards complex tone in warm/humid regions but merely predicts that language should be more likely to lose/never require that the phonological feature if spoken in very cold or otherwise arid regions are significant although undetermined time period.
+$$(C \Rightarrow \not T) \iff (T \Rightarrow \not C) \space\space\text{However, our data is T.}$$
+
+##
+
+- phonemic tone = pitch is used to contrast lexical meaning
+- some estimates suggest that over half the worlds languages are tonal to at least a moderate extent. For instance, languages tend to use modulation of fundamental frequency for some purpose, be it world level stress, phrasal stress, or general pragmatic functions.
+- only a smaller portion of roses languages use a system of complex tone, typically defined as a system containing three or more pitch based phonemic contrasts. In contrast to other than Świstak uses of pitch modulation systems of complex tone generally require greater precision of pitch modulation at the level of individual segments of sound eponymic categorization and associated semantic judgments can directly be impaired by imprecision of pitch in such cases.
+- in Mandarin Chinese for example, the character Ma, can vary in meaning depending on phonemic tone, it could mean either mother or horse.
+- 
+
+\newpage
+
+# The Data
+
+- the primary data set was acquired from the world atlas of linguistic structures online of the max Planck institute. (WALS) (n =500)
+- unfortunately the second data set which the paper used which happens to be the larger one by the Australian national University for new tactics database is not available at the time this paper was conducted. (n = 3000)
+- the humidity data was gathered from source and significant amounts of effort have been put into wrangling and cleaning the data into a tidy table format where each row represents one observation including one unique latitude one unique longitude, one unique month, one unique year.
+-the latitude and longitude observations were marked in a regular grid where we had 193 observations for longitude and 92 observations for latitude. Therefore for a given single observation in a single month year pair we have product number of observations. Given that we have months and years this increases the size of the table really rapidly.
+- nonetheless the humidity data is super critical to our analysis and great effort has been put through the tidying and wrangling of the humidity to set which has been made available in the source code for purposes of reproducibility
+
+```{r}
+if(plot){tonality_map()}
+```
+
+```{r}
+if(plot){humidity_tonality_map()}
+```
+
+
+## Data Description
+
+- WALS
+- ANU Phonotactics database unavailable
+- Humidity data
+- Wrangling process
+
+## Data Visualization
+
+```{r, fig.height = 7}
+if(plot){TH_boxplot / TH_density}
+```
+
+\newpage
+
+```{r}
+if(plot){EQ_scatter}
+```
+
+## Humidity and Dryness Indices
+
+- In the process of this paper we create several of our own indices and variables to aid in our inferential processes
+- one thing that the authors do not question is the use of the mean humidity as a sole statistic to extract data regarding humidity. While the mean is justifiablely very commonly used due to its very well behaved and usefuls propreties as a statistic, it is in the end still just a choice of a statistic. 
+- In turn, on hour journey to make inferential judgments on the blind spots of the authors' paper, we will seek to diverge from the use of the mean as a statistic.
+
+$$\mathbb{E}(\{h \mid h > h^*_{75} \}) = \text{UHI, Upper Humidity Index}$$
+
+```{r}
+i <- 100
+# Select a point
+cx <- humidity_df$x[i]; cy <- humidity_df$y[i]
+# Filter for that geo point
+point_humidity <- humidity_df %>% filter(x == cx) %>% filter(y == cy)
+```
+
+```{r}
+if(F){
+  humidity_df <- humidity_df %>% mutate(f = 100*f)
+  point_humidity <- point_humidity %>% mutate(f = 100*f)
+}
+```
+
+```{r}
+# Factor relevel
+MONTHS <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+point_humidity$mo <- factor(point_humidity$mo, levels=MONTHS)
+```
+
+```{r}
+#plot(point_humidity %>% group_by(mo) %>% summarize(mean = mean(f)))
+```
+
+```{r}
+humidity_df$mo <- factor(humidity_df$mo, levels=MONTHS)
+humidity_df %>% filter(x > 0) %>% ggplot() + geom_boxplot(aes(x = f, group = mo, color = mo)) + scale_color_viridis_d()
+humidity_df %>% filter(x > 0) %>% ggplot() + geom_density(aes(x = f, group = mo, color = mo)) + scale_color_viridis_d()
+```
+```{r}
+humidity_df %>% filter(mo == "Mar") %>% filter(f > 2) %>% ggplot() + geom_point(aes(x, y))
+```
+
+```{r}
+ggplot(humidity_df) + geom_histogram(aes(x = f), bins = 200) + geom_vline(xintercept = 1.384)
+```
+
+```{r}
+quantile(humidity_df$f)
+quantile(tonal_df$MH)
+quantile(tonal_df$UHI)
+```
+
+
+```{r}
+yearly_hum <- humidity_df %>% group_by(year) %>% summarize(mean = mean(f)) %>% filter(year != "2023")
+cor(as.numeric(yearly_hum$year), yearly_hum$mean)
+# Make sure year is constant
+plot(yearly_hum)
+```
+
+```{r}
+
+```
+
+
+\newpage
+
+# Methods
+
+```{r}
+if(plot){UHI_boxplot}
+```
+
+\newpage
+
+## Models
+
+### Equator Models
+
+$$\Phi(\mathbb{T}_{C}) \sim \text{EquatorDist} + \text{EquatorDist}^2$$
+
+```{r}
+# summary(glm_equator)
+# Estimated dispersion: 0.8380392
+glm_equator %>% 
+  tbl_regression(intercept = T) %>%
+  add_glance_table(include = c(null.deviance, deviance)) 
+```
+
+### Humidity Models
+
+$$\Phi(\mathbb{T}_{C}) \sim \mu_H$$
+
+
+```{r}
+# summary(glm_MH)
+# Estimated dispersion: 0.9729129
+glm_MH %>% 
+  tbl_regression(intercept = T) %>%
+  add_glance_table(include = c(null.deviance, deviance)) 
+```
+
+$$\Phi(\mathbb{T}_{C}) \sim U_H$$
+
+```{r}
+# summary(glm_UHI)
+# Estimated dispersion: 0.9407716
+glm_UHI %>% 
+  tbl_regression(intercept = T) %>%
+  add_glance_table(include = c(null.deviance, deviance)) 
+```
+
+### Austro Models
+
+$$\Phi(\mathbb{T}_{C}) \sim \mu_H + \text{isPapuan}$$
+```{r}
+# summary(glm_pap_CT)
+# Estimated dispersion: 0.9346198
+glm_pap_CT %>% 
+  tbl_regression(show_single_row = isAustro, intercept = T) %>%
+  add_glance_table(include = c(null.deviance, deviance)) 
+```
+
+\newpage 
+
+$$\Phi(\mathbb{T}_{S,C}) \sim \mu_H + \text{isPapuan}$$
+
+```{r}
+# summary(glm_pap_AT)
+# Estimated dispersion: 0.996694
+glm_pap_AT %>% 
+  tbl_regression(show_single_row = isAustro, intercept = T) %>%
+  add_glance_table(include = c(null.deviance, deviance)) %>%
+  modify_footnote(ci = "Estimated Dispersion: 0.996694")
+```
+
+## Survival Analysis
+
+- Compare the EDF to an identity that tells us how humidity is distributed across the globe for a reference point. 
+- Alternatively, could make a complement variable of dryness which is the negative of humidity so we can see survival behavior.
+- We use UDI as the inverse of UHI because we emphasize the existence/possibility of higher humidities rather than all-around existence of humidity. Recall when author said, one can speak Cantonese in Siberia. However, Cantonese cannot develop there.
+- Account for Papuan by other linguistic explanations to obtain more closer esimate of survival rate. Use paper referenced regarding social structure.
+- Use of statistics other than mean to maximize convexity of the survival function could give us inference that the existence of hotter days, as the reading suggests, is how we should think of "ripe" conditions for the emergence of phonetic tone.
+
+```{r}
+library(survival)
+library(ggsurvfit)
+```
+
+```{r, fig.height = 7}
+source("data.R")
+source("plot.R")
+if(plot){ EDF_MH / EDF_UHI }
+```
+
+```{r}
+SurvTone <- Surv(tonal_df$UDI, tonal_df$isnt_tonal)
+
+s1 <- survfit(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df)
+
+survfit2(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+
+
+summary(survfit(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df), times = 3.5)
+```
+
+```{r}
+SurvTone <- Surv(tonal_df$UDI, tonal_df$isnt_complex_tonal)
+
+s1 <- survfit(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df)
+
+survfit2(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+
+summary(survfit(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df), times = 2.95)
+```
+
+
+```{r}
+survfit2(Surv(UDI, isnt_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+survfit2(Surv(UDI, isnt_complex_tonal) ~ 1, data = tonal_df) %>% 
+  ggsurvfit() +
+  labs(x = "UDI", y = "Overall survival probability") + 
+  add_confidence_interval()
+```
+
+\newpage
+
+# Discussion
+
+
+
+## Results
+
+
+## Conclusion
+
+- it appears that human languages are environmentally adaptive
+- in other words, speech articulation is ultimately a biological phenomenon.
+- the authors have not made specific claims vis-à-vis the time scale involved in this ecological adaptation.
+- previous work has suggested that aspects of language appear to be adapted to ecological and social niches. For example language like diversity is correlated with biodiversity and pathogen prevalence, and morphological complexity is related to population size. This fact regarding morphological complexity is especially prevalent with regards to our inclusion of the Papuan categorical variable. 
+
+
+\newpage
+
+# Bibliography
+
+> Dryer, M., & Haspelmath, M. (2011). The World Atlas of Language Structures Online. Retrieved from http://wals.info/
+
+\vspace{1em}
+
+> Everett, C., Moran, S., & Roberts, S. (2015). Climate, vocal folds, and tonal languages: Connecting the physiological and geographic dots. Proceedings of the National Academy of Sciences of the United States of America, 112(5), 1322-1327. https://doi.org/10.1073/pnas.1417413112
+
+\vspace{1em}
+
+> Hombert, J., Ohala, J., & Ewan, W. (1979). Phonetic explanations for the development of tones. Language, 55(1), 37-58.
+
+\vspace{1em}
+
+> Kalnay, E., et al. (1996). The NCEP/NCAR 40-Year Reanalysis Project. Bulletin of the American Meteorological Society. Retrieved from http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NCEP-NCAR/.CDAS-1/.MONTHLY/.Diagnostic/.above_ground/
+
+\vspace{1em}
+
+> Lupyan, G., & Dale, R. (2010). Language structure is partly determined by social structure. PLoS ONE, 5(1), e8559.
+
+\vspace{1em}
+
+> Maddieson, I. (2011). Tone. In M. Dryer & M. Haspelmath (Eds.), The World Atlas of Language Structures Online (Feature 13A). Max Planck Digital Library, Munich. Retrieved from http://wals.info/feature/13A
+

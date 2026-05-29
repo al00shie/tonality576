@@ -1,0 +1,59 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Source scripts
+source("data.R")
+source("humidity.R")
+# Obtain raw data
+tonal_raw <- read_tsv("tone.tsv", show_col_types = F)
+# Get wrangled data
+tonal_df <- wrangle_data(data = tonal_raw)
+humid_df <- wrangle_humidity(months = 1)
+```
+
+```{r}
+# Transform
+humid_df <- humid_df %>% mutate(perc = (8 + 4*(f/0.001))/100)
+# Bounds
+bounds <- range(humid_df$perc, na.rm = T)
+```
+
+```{r}
+if(T){
+  # Plot
+  humid_df %>% 
+    filter() %>%
+    ggplot(mapping = aes(x = x, y = y)) +
+    geom_point(mapping = aes(color = f, alpha = perc)) +
+    scale_colour_distiller(palette = "YlOrRd")+
+    geom_point(data = tonal_df, mapping = aes(x = longitude, y = latitude, color = complex_tonal), alpha = 0.4)
+}
+```
+
+```{r}
+# Get ggplot coords
+world_coordinates <- map_data("world")
+# Plot
+humid_df %>%
+  ggplot() +
+  geom_map(data = world_coordinates, map = world_coordinates, 
+           aes(long, lat, map_id = region)) +
+  geom_point(aes(x = x, y = y, alpha = perc), color = "gold") +
+  geom_point(data = tonal_df, mapping = aes(x = longitude, y = latitude, color = complex_tonal), alpha = 0.4)
+```
+
+
+

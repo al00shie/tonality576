@@ -1,0 +1,56 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+fitted_k <- function(k){
+    mod_k_T <- get_model_k(k, T)
+    mod_k_F <- get_model_k(k, F)
+    mod_k_T$fitted.values - mod_k_F$fitted.values
+}
+```
+
+```{r}
+f2 <- fitted_k(2)
+```
+
+```{r}
+summary(get_model_k(1.5, T))
+summary(get_model_k(1.5, F))
+```
+
+
+```{r}
+trues <- which(tonal_df$complex_tonal == 1)
+```
+
+```{r}
+sort(f2[trues])
+hist(f2[trues])
+```
+

@@ -1,0 +1,54 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Source scripts
+source("data.R")
+#source("humidity.R")
+# Obtain raw data
+#tonal_raw <- read_tsv("tone.tsv", show_col_types = F)
+# Get wrangled data
+#tonal_df <- wrangle_data(data = tonal_raw)
+#humid_df <- wrangle_humidity(months = 890)
+# Source scripts
+#source("match.R")
+```
+
+```{r}
+# Get the MH for each coordinate
+# tonal_df <- tonal_df %>%
+#   mutate(near_lat = n_lat(latitude))  %>%
+#   mutate(near_long = n_long(longitude)) %>%
+#   mutate(MH = df_MH(near_long, near_lat, fxn = get_MH)) %>%
+#   mutate(hi_MH = df_MH(near_long, near_lat, fxn = top_MH)) %>%
+#   mutate(lo_MH = df_MH(near_long, near_lat, fxn = bot_MH)) %>%
+#   mutate(min_MH = df_MH(near_long, near_lat, fxn = min_MH)) %>%
+#   mutate(max_MH = df_MH(near_long, near_lat, fxn = max_MH))
+```
+
+```{r}
+#write.csv(tonal_df, file = "tonal_df.csv", row.names = F)
+```
+
+```{r}
+tonal_df <- read.csv("tonal_df.csv")
+tonal_df$tonality_type <- as.factor(tonal_df$tonality_type)
+```
+
+```{r}
+plot(tonal_df$latitude^2, log(tonal_df$MH))
+plot(tonal_df$latitude^2, -log(tonal_df$MH))
+plot(tonal_df$dist_equator, tonal_df$hi_MH)
+```

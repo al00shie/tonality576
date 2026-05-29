@@ -1,0 +1,91 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Source scripts
+source("data.R")
+source("humidity.R")
+# Obtain raw data
+tonal_raw <- read_tsv("tone.tsv", show_col_types = F)
+# Get wrangled data
+tonal_df <- wrangle_data(data = tonal_raw)
+humid_df <- wrangle_humidity(months = 36)
+```
+
+# Modeling
+
+## Probit Model
+
+```{r}
+glm_P <- glm(data = tonal_df, 
+                       formula = complex_tonal ~ dist_equator, 
+                       family = binomial(link = probit))
+summary(glm_P)
+```
+
+## Logit Model
+
+```{r}
+glm_L <- glm(data = tonal_df, 
+                      formula = complex_tonal ~ dist_equator, 
+                      family = binomial(link = logit))
+summary(glm_L)
+```
+
+\newpage
+
+## Transformed Probit Model
+
+```{r}
+glm_P_sq <- glm(data = tonal_df, 
+                   formula = complex_tonal ~ I(dist_equator^2), 
+                   family = binomial(link = probit))
+summary(glm_P_sq)
+```
+
+\newpage
+
+# Residuals
+
+```{r, echo = F}
+gglm(glm_L)
+gglm(glm_P)
+```
+
+\newpage
+
+# Dispersion Estimation
+
+## Untransformed
+
+```{r}
+# Estimate binomial GLM dispersion
+qglm_P <- glm(data = tonal_df, 
+                    formula = complex_tonal ~ I(dist_equator), 
+                    family = quasibinomial(link = probit))
+summary(qglm_P)
+```
+
+
+## Transformed
+
+```{r}
+# Estimate binomial GLM dispersion
+qglm_P_sq <- glm(data = tonal_df, 
+                    formula = complex_tonal ~ I(dist_equator^2), 
+                    family = quasibinomial(link = probit))
+summary(qglm_P_sq)
+```
+

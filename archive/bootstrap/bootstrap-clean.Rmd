@@ -1,0 +1,111 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+attach(tonal_df)
+```
+
+```{r}
+fammod <- glm(is_tonal ~ family, family = quasibinomial(link = "probit"), data = tonalM_df)
+summarymod <- summary(fammod)
+coefs <- summarymod$coefficients
+coefs[which(coefs[,4] < 0.05),]
+```
+
+```{r}
+fammod <- glm(complex_tonal ~ family, family = quasibinomial(link = "probit"), data = tonalM_df)
+summarymod <- summary(fammod)
+coefs <- summarymod$coefficients
+coefs[which(coefs[,4] < 0.15),]
+```
+
+```{r}
+fam_sel <- c("Oto-Manguean","Mande","Niger-Congo","Sino-Tibetan")
+#fam_sel2 <- c(fam_sel, "Khoe-Kwadi", "Muskogean")
+selled <- tonalM_df %>% filter(family %in% c(fam_sel))
+nrow(selled)/nrow(tonal_df)
+```
+
+```{r}
+
+```
+
+
+```{r}
+fammod <- glm(complex_tonal ~ MH + family, family = quasibinomial(link = "probit"), data = tonalM_df) #%>% filter(is_tonal == T))
+summarymod <- summary(fammod)
+coefs <- summarymod$coefficients
+coefs[which((coefs[,"Pr(>|t|)"] < 0.1) & (coefs[,"Estimate"] < 0)),]
+coefs[which((coefs[,"Pr(>|t|)"] < 0.1) & (coefs[,"Estimate"] > 0)),]
+```
+
+```{r}
+family_df <- tonalM_df
+family_df <- family_df %>% 
+  mutate(isAusAsi = (family == "Austro-Asiatic")) %>%
+  mutate(isAustro = (family == "Austronesian")) %>%
+  mutate(isTransGuinean = (family == "Trans-New Guinea"))
+```
+
+```{r}
+family_table <- function(family_str){table((tonal_df %>% filter(family == family_str))$tonality_type)}
+family_table("Niger-Congo")
+family_table("Trans-New Guinea")
+family_table("Austro-Asiatic")
+family_table("Austronesian")
+```
+
+```{r}
+attach(tonalS_df)
+family_df <- cbind(family_df, tonalS_df[,c("med_H","var_H")])
+```
+
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~  I(MH + 2 * sqrt(var_H))  +  isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod$coefficients
+anova(fam_mod_f)
+```
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~ I((max_H - min_H)) + MH + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+
+```{r}
+fam_mod_f <- glm(complex_tonal ~ I((max_H - min_H)/max_H) + MH + isAusAsi + isAustron + isTransGuinean, family = quasibinomial(link = "probit"), data = family_df)
+sumfammod <- summary(fam_mod_f)
+sumfammod
+anova(fam_mod_f)
+```
+
+

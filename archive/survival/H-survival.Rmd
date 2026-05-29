@@ -1,0 +1,149 @@
+---
+title: "The Geographic Determinism of Complex Tone"
+author: "MA576 Final Project"
+date: "Ali Taqi"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+# Control booleans
+plot <- F
+table <- F
+i<- 3000
+```
+
+```{r}
+DFL <- tonalL_df
+DFM <- tonalM_df
+DFH <- tonalL_df
+
+hum_cols <- hum_cols_MM
+
+DFL[,hum_cols] <- 4-DFL[,hum_cols]
+DFM[,hum_cols] <- 4-DFM[,hum_cols]
+DFH[,hum_cols] <- 4-DFH[,hum_cols]
+
+```
+
+
+```{r}
+avec <- 1- (1:9)/10
+col0 <- "darkblue"
+
+EP1 <- DFL %>%
+  filter(is_tonal == TRUE) %>%
+  ggplot() + 
+  #scale_color_manual(name = "Tonality Type", values = c("orange3","gold3")) + 
+  stat_ecdf(aes(x = DFL[,23][which(DFL$is_tonal == 1)]), alpha = avec[1], color = col0) + 
+  stat_ecdf(aes(x = DFL[,24][which(DFL$is_tonal == 1)]), alpha = avec[2], color = col0) + 
+  stat_ecdf(aes(x = DFL[,25][which(DFL$is_tonal == 1)]), alpha = avec[3], color = col0) + 
+  stat_ecdf(aes(x = DFL[,26][which(DFL$is_tonal == 1)]), alpha = avec[4], color = col0) + 
+  stat_ecdf(aes(x = DFL[,27][which(DFL$is_tonal == 1)]), alpha = avec[5], color = col0) + 
+  stat_ecdf(aes(x = DFL[,28][which(DFL$is_tonal == 1)]), alpha = avec[6], color = col0) + 
+  stat_ecdf(aes(x = DFL[,29][which(DFL$is_tonal == 1)]), alpha = avec[7], color = col0) + 
+  stat_ecdf(aes(x = DFL[,30][which(DFL$is_tonal == 1)]), alpha = avec[8], color = col0) +    
+  stat_ecdf(aes(x = DFL[,31][which(DFL$is_tonal == 1)]), alpha = avec[9], color = col0) +
+  stat_ecdf(aes(x = DFL[,17][which(DFL$is_tonal == 1)]), alpha = 1, color = "blue") +
+  stat_ecdf(aes(x = DFL[,18][which(DFL$is_tonal == 1)], alpha = 1), color = "red") +
+  stat_ecdf(aes(x = DFL[,14][which(DFL$is_tonal == 1)], alpha = 1), color = "purple") +
+  facet_wrap(~ tonality_type) +
+  theme(legend.position = "none") +
+  labs(title = paste("H",i-22), y = "Cumulative Proportion") +
+  xlim(c(4,2))
+```
+
+
+```{r}
+
+#DFH[,23:30] <- DFH[,23:30]*100
+```
+
+```{r}
+
+```
+```{r}
+avec <- 0.1 + (1:9)/10
+col0 <- "darkred"
+
+EP2 <- tonalH_df %>%
+  filter(is_tonal == TRUE) %>%
+  ggplot() + 
+  #scale_color_manual(name = "Tonality Type", values = c("orange3","gold3")) + 
+  stat_ecdf(aes(x = DFH[,23][which(DFH$is_tonal == 1)]), alpha = avec[1], color = col0) + 
+  stat_ecdf(aes(x = DFH[,24][which(DFH$is_tonal == 1)]), alpha = avec[2], color = col0) + 
+  stat_ecdf(aes(x = DFH[,25][which(DFH$is_tonal == 1)]), alpha = avec[3], color = col0) + 
+  stat_ecdf(aes(x = DFH[,26][which(DFH$is_tonal == 1)]), alpha = avec[4], color = col0) + 
+  stat_ecdf(aes(x = DFH[,27][which(DFH$is_tonal == 1)]), alpha = avec[5], color = col0) + 
+  stat_ecdf(aes(x = DFH[,28][which(DFH$is_tonal == 1)]), alpha = avec[6], color = col0) + 
+  stat_ecdf(aes(x = DFH[,29][which(DFH$is_tonal == 1)]), alpha = avec[7], color = col0) + 
+  stat_ecdf(aes(x = DFH[,30][which(DFH$is_tonal == 1)]), alpha = avec[8], color = col0) +    
+  stat_ecdf(aes(x = DFH[,31][which(DFH$is_tonal == 1)]), alpha = avec[9], color = col0) +
+  stat_ecdf(aes(x = DFH[,17][which(DFH$is_tonal == 1)]), alpha = 1, color = "blue") +
+  stat_ecdf(aes(x = DFH[,18][which(DFH$is_tonal == 1)], alpha = 1), color = "red") +
+  stat_ecdf(aes(x = DFH[,14][which(DFL$is_tonal == 1)], alpha = 1), color = "purple") +
+  facet_wrap(~ tonality_type) +
+  theme(legend.position = "none") +
+  labs(title = paste("H",i-22), y = "Cumulative Proportion")+
+  xlim(c(4,2))
+```
+
+
+
+
+```{r, fig.height = 10}
+EP1/EP2
+```
+
+
+
+\newpage
+
+```{r}
+avec <- 1 - abs(1:9 - 5)/5
+col0 <- "violet"
+
+EP3 <- tonalH_df %>%
+  filter(is_tonal == TRUE) %>%
+  ggplot() + 
+  #scale_color_manual(name = "Tonality Type", values = c("orange3","gold3")) + 
+  stat_ecdf(aes(x = DFM[,23][which(DFL$is_tonal == 1)]), alpha = avec[1], color = col0) + 
+  stat_ecdf(aes(x = DFM[,24][which(DFL$is_tonal == 1)]), alpha = avec[2], color = col0) + 
+  stat_ecdf(aes(x = DFM[,25][which(DFL$is_tonal == 1)]), alpha = avec[3], color = col0) + 
+  stat_ecdf(aes(x = DFM[,26][which(DFL$is_tonal == 1)]), alpha = avec[4], color = col0) + 
+  stat_ecdf(aes(x = DFM[,27][which(DFL$is_tonal == 1)]), alpha = avec[5], color = col0) + 
+  stat_ecdf(aes(x = DFM[,28][which(DFL$is_tonal == 1)]), alpha = avec[6], color = col0) + 
+  stat_ecdf(aes(x = DFM[,29][which(DFL$is_tonal == 1)]), alpha = avec[7], color = col0) + 
+  stat_ecdf(aes(x = DFM[,30][which(DFL$is_tonal == 1)]), alpha = avec[8], color = col0) +    
+  stat_ecdf(aes(x = DFM[,31][which(DFL$is_tonal == 1)]), alpha = avec[9], color = col0) +
+  stat_ecdf(aes(x = DFM[,17][which(DFL$is_tonal == 1)]), alpha = 1, color = "blue") +
+  stat_ecdf(aes(x = DFM[,18][which(DFL$is_tonal == 1)], alpha = 1), color = "red") +
+  stat_ecdf(aes(x = DFM[,14][which(DFL$is_tonal == 1)], alpha = 1), color = "purple") +
+  facet_wrap(~ tonality_type) +
+  theme(legend.position = "none") +
+  labs(title = paste("H",i-22), y = "Cumulative Proportion") +
+  xlim(c(4,2))    
+EP3
+```
+
+
+

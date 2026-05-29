@@ -1,0 +1,72 @@
+---
+title: "Tonal Languages"
+author: "Ali Taqi"
+date: "2023-04-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+```
+
+```{r data, include = FALSE}
+# Import data
+tonal_df <- read.csv("../tonal_df.csv")
+# Make tonality type factor
+tonal_df$tonality_type <- as.factor(tonal_df$tonality_type)
+```
+
+
+# Modeling
+
+## Probit Model
+
+```{r}
+glm_tone_probit <- glm(data = tonal_df, 
+                       formula = is_tonal ~ dist_equator, 
+                       family = binomial(link = probit))
+summary(glm_tone_probit)
+```
+
+## Logit Model
+
+```{r}
+glm_tone_logit <- glm(data = tonal_df, 
+                      formula = is_tonal ~ dist_equator, 
+                      family = binomial(link = logit))
+summary(glm_tone_logit)
+```
+
+## Transformed Probit Model
+
+```{r}
+glm_tone_probit <- glm(data = tonal_df, 
+                      formula = I(is_tonal^2) ~ dist_equator, 
+                      family = binomial(link = probit))
+summary(glm_tone_probit)
+```
+
+\newpage
+
+# Residuals
+
+```{r, echo = F}
+gglm(glm_tone_logit)
+gglm(glm_tone_probit)
+```
+
+\newpage
+
+# Dispersion Estimates
+
+```{r}
+glm_tone_probit <- glm(data = tonal_df, 
+                      formula = I(is_tonal) ~ dist_equator, 
+                      family = quasibinomial(link = probit))
+summary(glm_tone_probit)
+```
+

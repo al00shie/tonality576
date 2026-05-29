@@ -1,0 +1,82 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+# Given two vectors of coordinates, get MH of nearest coordinate
+df_MH <- function(longitude, latitude, fxn){
+  purrr::map2_dbl(.x = longitude, .y = latitude, fxn)
+}
+
+fx_skew <- function(nx, ny){  
+  # Get humidity for those coords
+  hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+  # Get stat
+  H_stat <- skewness(hum_coords$f)
+  return(H_stat)
+}
+fx_kurt <- function(nx, ny){  
+  # Get humidity for those coords
+  hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+  # Get stat
+  H_stat <- kurtosis(hum_coords$f)
+  return(H_stat)
+}
+fx_quantiles <- function(nx, ny){  
+  # Get humidity for those coords
+  hum_coords <- humid_df %>% filter(x == nx) %>% filter(y == ny)
+  QS <- data.frame(t(quantile(hum_coords$f, probs = 1:9/10)))
+  return(QS)
+}
+```
+
+```{r}
+humid_df <- read.csv("humidity890.csv")
+tonal_df_kurt <- tonal_df %>% mutate(kurt_H = df_MH(near_long, near_lat, fxn = fx_kurt))
+```
+
+```{r}
+write.csv(tonal_df_kurt, "kurt.csv", row.names = F)
+```
+```{r}
+NXS <- tonal_df$near_long
+NYS <- tonal_df$near_lat
+wrap_i <- function(i){fx_quantiles(NXS[i], NYS[i])}
+```
+
+
+```{r}
+quantile_cols <- map_dfr(.x = 1:527, .f = wrap_i)
+```
+
+```{r}
+colnames(quantile_cols) <- paste("Q",1:9, sep = "")
+tonalK_df <- cbind(tonal_df, quantile_cols)
+```
+
+

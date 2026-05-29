@@ -1,0 +1,120 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+library(MASS)
+```
+
+```{r data, include = FALSE}
+# Import data
+tonal_df2 <- read.csv("tonal_df.csv")
+# Make tonality type factor
+tonal_df$tonality_type <- as.factor(tonal_df$tonality_type)
+# Plot scripts
+source("plot.R")
+```
+
+```{r}
+
+```
+
+
+```{r}
+summary(glm(is_tonal ~ MH + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(is_tonal ~ M60 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(is_tonal ~ M70 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(is_tonal ~ M80 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(is_tonal ~ M90 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(is_tonal ~ max_H + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+```
+
+
+```{r}
+summary(glm(complex_tonal ~ MH + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(complex_tonal ~ M60 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(complex_tonal ~ M70 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ M80 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+#summary(glm(complex_tonal ~ M90 + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ max_H + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+```
+
+```{r}
+attach(tonalM_df)
+cor(max_H, I(min_H * max_H))
+cor(MH,    I(min_H * max_H))
+cor(M80,   I(min_H * max_H))
+cor(max_H,    I(M20 * MH))
+```
+
+```{r}
+plot(MH, I(min_H/max_H))
+plot(MH, I((min_H-1)/max_H))
+plot(MH, I(max_H - 4*min_H))
+plot(MH,I(1 - (min_H/0.5*max_H)))
+```
+```{r}
+summary(glm(complex_tonal ~ M50 + I(min_H/max_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(0.5*max_H - 2*min_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(min_H/max_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+```
+
+
+```{r}
+summary(glm(complex_tonal ~ MH + I(min_H/max_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(1 - (min_H/max_H))  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(1 - (min_H/2*max_H))  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+
+summary(glm(complex_tonal ~ M50 + I(max_H - min_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ I(log(M70 * M30)) + I(min_H/max_H)  + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(max_H - min_H) + isAustro, family = quasibinomial(link = "probit"), data = tonalM_df))
+```
+
+
+```{r}
+summary(glm(complex_tonal ~ MH + I(min_H/max_H), family = quasibinomial(link = "probit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(max_H - min_H), family = quasibinomial(link = "probit"), data = tonalM_df))
+```
+
+
+```{r}
+summary(glm(complex_tonal ~ MH + I(max_H - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(M80 - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ max_H + I(M80 - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+```
+
+```{r}
+
+summary(glm(complex_tonal ~ MH + I(M80 * min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(M80 - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+
+summary(glm(complex_tonal ~ MH + I(UDI * min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ MH + I(max_H - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+
+summary(glm(complex_tonal ~ max_H + I(MH - min_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ max_H + I(MH - M20) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+```
+
+```{r}
+
+```
+
+
+```{r}
+summary(glm(complex_tonal ~ M50 + I(min_H * max_H), family = quasibinomial(link = "logit"), data = tonalM_df))
+summary(glm(complex_tonal ~ M50 + I(min_H * max_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+```
+
+```{r}
+#summary(glm(is_tonal ~ MH + I(min_H * max_H), family = quasibinomial(link = "logit"), data = tonalM_df))
+#summary(glm(is_tonal ~ MH + I(min_H * max_H) + isAustro, family = quasibinomial(link = "logit"), data = tonalM_df))
+```
+

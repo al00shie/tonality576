@@ -1,0 +1,125 @@
+---
+title: "MA576 Project: The Geography of Tonal Languages"
+author: "Ali Taqi"
+date: "May 2nd, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+# Load libraries
+library(tidyverse)
+library(gglm)
+library(MASS)
+```
+
+```{r setup, include=FALSE}
+# Chunk setup
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 5, fig.align = 'center')
+# Load libraries
+library(tidyverse)
+library(ggnewscale)
+library(gt)
+library(gtsummary)
+library(patchwork)
+library(MASS)
+library(survival)
+library(ggsurvfit)
+```
+
+```{r data, include = FALSE}
+# Import scripts
+source("data.R")
+source("humidity.R")
+source("plot.R")
+source("models.R")
+```
+
+```{r}
+hum_table_mean <- humidity_df %>% group_by(x, y) %>% summarize(mean_f = mean(f))
+hum_table_max <- humidity_df %>% group_by(x, y) %>% summarize(max_f = max(f))
+```
+
+```{r}
+hum_noext_max <- hum_table_max %>% 
+  filter(y > y_min) %>% filter(y < y_max) %>% filter(x > x_min) %>% filter(x < x_max)
+hist(hum_noext_max$max_f, breaks = 30)
+
+
+hum_noext_mean <- hum_table_mean %>% 
+  filter(y > y_min) %>% filter(y < y_max) %>% filter(x > x_min) %>% filter(x < x_max)
+hist(hum_noext_mean$mean_f, breaks = 30)
+```
+
+```{r}
+# Obtain ggplot world coordinates
+world_coordinates <- map_data("world")
+# boundaries
+x_min <- -140; x_max <- 160
+y_min <- -50; y_max <- 60
+```
+
+```{r}
+attach(tonal_df)
+```
+
+```{r}
+hist(MH, breaks = 20)
+hist(100 * hum_noext_mean$mean_f, breaks = 20)
+```
+
+```{r}
+hist(max_H, breaks = 20)
+hist(100 * hum_noext_max$max_f, breaks = 20)
+```
+
+```{r}
+MH_def <- tonal_df %>% filter(MH < 1.1) %>% filter(MH > 0.7)
+table(MH_def$tonality_type)
+hist(MH_def$MH)
+```
+```{r}
+summary(glm(complex_tonal ~ MH, family = quasibinomial, data = tonal_df))
+```
+
+
+```{r}
+sample1 <- sample_n(MH_def, size = 80, replace = T)
+MH_def_BOOT <- rbind(tonal_df, sample1)
+summary(glm(complex_tonal ~ MH, family = quasibinomial, data = MH_def_BOOT))
+```
+
+
+```{r}
+hum_table_mean %>% 
+  filter(y > y_min) %>% filter(y < y_max) %>% filter(x > x_min) %>% filter(x < x_max) %>%
+  ggplot() +
+  geom_map(data = world_coordinates, map = world_coordinates, aes(x = long, y = lat, map_id = region)) +
+  geom_point(mapping = aes(x = x, y = y, color = mean_f), size = 0.35) + 
+  scale_color_distiller(type = "div", palette = 7) #+
+  #ylim(-10,-2) + xlim(135,150)
+```
+
+```{r}
+hum_table_mean %>% 
+  filter(y > y_min) %>% filter(y < y_max) %>% filter(x > x_min) %>% filter(x < x_max) %>%
+  ggplot() +
+  geom_map(data = world_coordinates, map = world_coordinates, aes(x = long, y = lat, map_id = region)) +
+  geom_point(mapping = aes(x = x, y = y))+
+  ylim(-10,-2) + xlim(135,150) +
+  geom_point(data = NG, mapping = aes(x = longitude, y = latitude, color = tonality_type))
+```
+
+
+```{r}
+hum_table_max %>% 
+  filter(y > y_min) %>% filter(y < y_max) %>% filter(x > x_min) %>% filter(x < x_max) %>%
+  ggplot() +
+  geom_map(data = world_coordinates, map = world_coordinates, aes(x = long, y = lat, map_id = region)) +
+  geom_point(mapping = aes(x = x, y = y, color = max_f), size = 0.35) + 
+  scale_color_distiller(type = "div", palette = 7)
+```
+
+
+
