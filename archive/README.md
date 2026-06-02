@@ -5,6 +5,9 @@ and the raw source data that fed into the final paper (`../final-paper.Rmd`). No
 material lives in the reproducible pipeline; it is kept as a record of how the analysis
 developed.
 
+See [`paper-coverage.md`](paper-coverage.md) for a rated breakdown (out of 5) of how much
+each subdirectory's topic actually reached the final paper.
+
 The work passed through three title eras, which is a useful way to date a notebook:
 
 1. **"Tonal Languages"** (earliest) — `source-data/`, `data-pipeline/data.R`,
