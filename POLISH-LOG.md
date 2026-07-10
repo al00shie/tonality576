@@ -501,3 +501,69 @@ the $k=2$ fit (no hard-coded numbers), so the claim is now checkable — includi
   less — which is the correct direction.
 - Built with base `knitr::kable` (plain-text terms, formatted $p$ column with `< 0.0001`), no
   `booktabs`/`kableExtra`, to keep the knit dependency-free.
+
+---
+
+## Iteration 9 — Fill gap #2: family-predictor F-test (the "open question")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp, inline numbers verified in the rendered PDF |
+| **Touches claims** | ✅ **NEW RESULT + a caveat that keeps the question open** |
+| **Revert to** | `1c6faa9` |
+
+The paper flagged the family predictors as an "open question" but never quantified whether
+they earn their place. Added the test — and, just as importantly, the reason it does **not**
+close the question.
+
+**Statistical note that shaped it:** the models are `quasibinomial`, so **AIC is undefined and
+a chi-square LRT is not the right test** — the correct nested comparison is an **F-test** (the
+dispersion is estimated). So the primary result is an F-test; a binomial refit supplies AIC/LRT
+only as a cross-check.
+
+All numbers are computed **live** in a hidden chunk and injected with inline `` `r ` `` —
+nothing is hard-coded.
+
+```diff
+@@ Dispersion & Family Predictors @@
++ ```{r, include=FALSE}  # live: F-tests, p-values, AIC cross-check  ```
+  Lastly, we conclude our discussion on the language predictors. The addition of the family
+- indicators does disperse the model in the right direction.
++ indicators does disperse the model in the right direction, and the effect is statistically
++ clear: adding the three indicators to the $k=2$ score model yields a highly significant
++ nested improvement ($F_{3,522} = 6.56$, $p = 0.0002$), and the same holds for the $q=75$
++ window model ($F_{3,522} = 8.84$, $p < 10^{-4}$). A non-quasibinomial cross-check agrees,
++ with the AIC falling from 426.9 to 412.6.
+  ...
+- However, we still need to provide evidence that this is not just reverse engineering...
++ However, this significance must be read with caution... the three families were themselves
++ selected by inspecting the family coefficients of a preliminary `complex_tonal ~ MH + family`
++ fit, so the tests above are *post-selection* and their $p$-values are optimistic: they confirm
++ the indicators carry signal, not that including them is the correct specification rather than
++ an accommodation of the very outliers that motivated them.
+```
+
+**Notes**
+
+- This is the most delicate iteration: it would have been easy to present $F = 6.56,\ p =
+  0.0002$ as *resolving* the confound. It does not. The families were chosen by their own
+  coefficients, so the test is circular (post-selection), and the paper now says so. The
+  "open question" stance is **preserved and strengthened**, not overturned.
+- The `include=FALSE` chunk runs the fits but emits nothing; the four statistics reach the
+  prose only through inline references, so they can never drift from the code.
+
+---
+
+# Round 2 summary
+
+| Iter | Commit | What | New results? |
+|---|---|---|---|
+| 6 | prose+genealogy | 5 sentence fixes + areal-not-genealogical correction | factual fix only |
+| 7 | k-sweep | show the deviance turnaround (was "not shown") | ✅ |
+| 8 | coef table | Table 1 substantiates significance, surfaces the exception | ✅ |
+| 9 | family F-test | F-test + AIC/LRT + post-selection caveat | ✅ |
+
+**Still open after round 2** — genuinely new research, out of scope for a polish loop:
+resolving (not just testing) the family confound would need a pre-registered family grouping or
+an out-of-sample check to escape the post-selection circularity. The paper is now honest and
+quantified about exactly this.
