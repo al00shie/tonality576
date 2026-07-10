@@ -129,3 +129,80 @@ Austro-Asiatic, and Trans-New Guinea are *distinct* families. They are **areally
 (insular/mainland Southeast Asia and New Guinea), not genealogically connected — the proposed
 Austric link is contested and would not cover Trans-New Guinea at all. Since the family
 argument leans on this, it is left exactly as written for Ali to decide.
+
+---
+
+## Iteration 3 — Prose repairs & the conclusion
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 19 pp |
+| **Touches claims** | ❌ no — grammar and register; every argument preserved |
+| **Revert to** | `1ec2034` |
+
+Three garbled sentences in the body, then the conclusion, which was the most overwrought
+passage in the paper.
+
+```diff
+@@ L75 · Introduction @@
+- Then, we establish how there are necessary dynamics (such as precise intonation)
+- that are necessary for complex tone to emerge.
++ Then, we establish the dynamics (such as precise intonation) that are necessary
++ for complex tone to emerge.
+
+@@ L85 · Physiology of Phonation @@
+- Although less important for purposes, it is also worth mentioning...
++ Although less important for our purposes, it is also worth mentioning...
+
+@@ L101 · Statistical Evidence @@
+- With this in mind, this is what motivates our desire to explore of the usage of
+- the larger quantiles, in the same inferential framework...
++ This is what motivates our exploration of the larger quantiles, in the same
++ inferential framework...
+
+@@ L361 · Conclusion ¶1 @@
+- ...While they both had their differences, they both showed one there is comparatively
+- more information to explain complex tonality in upper quantiles...
+- ...an attempt to better separate the data as best as possible...
++ ...While the two differ in important ways, both showed that there is comparatively
++ more information for explaining complex tonality in the upper quantiles...
++ ...an attempt to separate the data as best as possible...
+
+@@ L363 · Conclusion ¶2 @@
+- After discussing some issues regarding the score statistic regarding its grounding
+- on the data... In contrast to the authors emphasis... we leverage the power of
+- statistics to show that the $q \in (70,80)$ percentile range contains a rich slew of
+- information that pans out in a complex manner to give us demonstrably higher
+- explanatory power.
++ After discussing the score statistic's weaknesses — its loose grounding in the data,
++ and the inaccuracy induced by its projective nature — ... In contrast to the authors'
++ emphasis... we show that the $q \in (70,80)$ percentile range carries demonstrably
++ higher explanatory power.
+
+@@ L365 · Conclusion ¶3 @@
+- Through the power of statistics, we have demonstrated the following idea -- given only
+- a select range of quantiles...
+- When we understand that humidity, as a geographic phenomenon is chaotic and random, but
+- still in a sense has predictable, deterministic structure with finite uncertainty.
+- As such, only through the power of statistics, we uncover the secret beautiful gems
+- behind these deterministic systems, embedding themselves in the most unexpected ways
+- possible, like in our case, complex tonal languages, and the geographic humidity structure!
++ We have demonstrated the following idea: given only a select range of upper quantiles...
++ Humidity, as a geographic phenomenon, is chaotic and random, yet it retains a predictable,
++ deterministic structure with finite uncertainty. It is precisely that structure which
++ allows a statistical treatment to recover a relationship as unexpected as the one between
++ geographic humidity and complex tonal languages.
+```
+
+**Notes**
+
+- **Kept deliberately:** the lower-bound / upper-bound paradigm contrast and both of the
+  author's coined quotations ("comfort of a reliable, observed floor"; "confident aspirations
+  of a minimum sufficient humidity, having previously seen how high the ceiling was"). These
+  are the sharpest lines in the conclusion and are the author's own.
+- **Repaired:** "When we understand that humidity... with finite uncertainty." was a sentence
+  fragment with no main clause. It now resolves.
+- **Removed:** "the power of statistics" appeared three times in three paragraphs; now zero.
+  The closing "secret beautiful gems... !" flourish is gone, but the closing *idea* — that
+  deterministic structure is what makes the recovery possible — is preserved.
+- `-- ` (a literal double hyphen) replaced with a true em dash.
