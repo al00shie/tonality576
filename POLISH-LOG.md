@@ -455,3 +455,49 @@ so rather than overstating it.
 **One caught defect:** the plot title used an em dash, which the ggplot device font renders as
 `...`. Changed to parentheses. (Lesson: unicode punctuation inside plot *images* isn't covered
 by the LaTeX font.)
+
+---
+
+## Iteration 8 — Fill gap #1b: coefficient table (was "not shown")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp, table verified visually |
+| **Touches claims** | ✅ **NEW RESULT** — substantiates the significance claim, and honestly surfaces its one exception |
+| **Revert to** | `7d59deb` |
+
+The paper asserted "although it is not shown, all the coefficients are statistically
+significant... with few exceptions." Replaced the assertion with **Table 1**, built live from
+the $k=2$ fit (no hard-coded numbers), so the claim is now checkable — including the exception.
+
+```diff
+@@ Results Overview: Score Model @@
+- Although it is not shown, it is worth at least mentioning that all the coefficients are
+- statistically significant, especially the humidity statistic... The language predictors
+- fluctuate more, but with few exceptions, generally remain below $p < 0.05$.
++ The coefficients of the model at our reference point $k = 2$ are given in the table below.
++ The humidity statistic... is highly significant, as we would hope. The family predictors are
++ weaker and fluctuate more across $k$: at this reference point Austronesian and Austro-Asiatic
++ clear $p < 0.05$, while Trans-New Guinea does not — the kind of exception we alluded to.
++
++ ```{r}  ... knitr::kable(coef table from get_model_k(2, T)) ...  ```   (new Table 1)
+```
+
+**Table 1 (rendered, verified):**
+
+| Term | Estimate | Std. Error | t | p |
+|---|--:|--:|--:|--:|
+| Intercept | −3.292 | 0.398 | −8.26 | < 0.0001 |
+| k-SD score (k = 2) | 1.288 | 0.199 | 6.47 | < 0.0001 |
+| Austronesian | −1.014 | 0.346 | −2.93 | 0.0036 |
+| Trans-New Guinea | −0.856 | 0.483 | −1.77 | **0.0767** |
+| Austro-Asiatic | −1.098 | 0.513 | −2.14 | 0.0327 |
+
+**Notes**
+
+- The honest move here was *not* to launder the exception. The original "with few exceptions"
+  was vague cover; the table makes Trans-New Guinea's $p = 0.077$ explicit, and the prose now
+  names it. This is a case where showing the evidence makes the paper *more* qualified, not
+  less — which is the correct direction.
+- Built with base `knitr::kable` (plain-text terms, formatted $p$ column with `< 0.0001`), no
+  `booktabs`/`kableExtra`, to keep the knit dependency-free.

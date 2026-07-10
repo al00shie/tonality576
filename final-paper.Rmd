@@ -250,7 +250,26 @@ The first immediate takeaway from the score models is the suggestion that **uppe
 if(plot){dev_plot_full}
 ```
 
-Although it is not shown, it is worth at least mentioning that all the coefficients are statistically significant, especially the humidity statistic, which we are most concerned about. The language predictors fluctuate more, but with few exceptions, generally remain below $p < 0.05$. All said and done, it is a remarkable result to see the score statistic, which is a simple linear combination of two static predictors ($\mu_H  \text{ and } \sigma_H$) give us a simple parameterized model that shows an undeniable, *continuous* pattern of deviation reduction. As expected, it also tapers off near the $k = 2$ region, as nearly no more "real" information exists beyond $k \gg 2$ (taking real to mean grounded in the true distribution of the data overall). While this method has its issues, this does serve as a simple and quick method to firmly establish that upper quantile data *does* contain increasingly more information in explaining complex tonality. In the next section, we move on the second class of models, and afterwards ending with a holistic discussion on dispersion and family predictors.
+The coefficients of the model at our reference point $k = 2$ are given in the table below. The humidity statistic, which we are most concerned about, is highly significant, as we would hope. The family predictors are weaker and fluctuate more across $k$: at this reference point Austronesian and Austro-Asiatic clear $p < 0.05$, while Trans-New Guinea does not — the kind of exception we alluded to.
+
+```{r}
+if(plot){
+  ct <- summary(get_model_k(2, T))$coefficients
+  pv <- ct[, 4]
+  ktab <- data.frame(
+    Term = c("Intercept", "k-SD score (k = 2)", "Austronesian", "Trans-New Guinea", "Austro-Asiatic"),
+    Estimate = round(ct[, 1], 3),
+    `Std. Error` = round(ct[, 2], 3),
+    `t value` = round(ct[, 3], 2),
+    `p value` = ifelse(pv < 1e-4, "< 0.0001", formatC(pv, format = "f", digits = 4)),
+    check.names = FALSE, row.names = NULL
+  )
+  knitr::kable(ktab, row.names = FALSE,
+    caption = "Coefficients of the k-SD score model at the reference point k = 2 (probit link, family indicators included).")
+}
+```
+
+All said and done, it is a remarkable result to see the score statistic, which is a simple linear combination of two static predictors ($\mu_H  \text{ and } \sigma_H$) give us a simple parameterized model that shows an undeniable, *continuous* pattern of deviation reduction. As expected, it also tapers off near the $k = 2$ region, as nearly no more "real" information exists beyond $k \gg 2$ (taking real to mean grounded in the true distribution of the data overall). While this method has its issues, this does serve as a simple and quick method to firmly establish that upper quantile data *does* contain increasingly more information in explaining complex tonality. In the next section, we move on the second class of models, and afterwards ending with a holistic discussion on dispersion and family predictors.
 
 \vspace{-0.5em}
 
