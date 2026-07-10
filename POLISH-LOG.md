@@ -404,3 +404,54 @@ reach.
   families are areally clustered (SE Asia / New Guinea), not genealogically related. The
   confounding argument the sentence was making is preserved — contact and within-family
   inheritance can still produce the cluster — but it no longer overstates the relationship.
+
+---
+
+## Iteration 7 — Fill gap #1a: show the deviance turnaround (was "not shown")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp (+1 for the new figure), verified visually |
+| **Touches claims** | ✅ **NEW RESULT** — reveals an already-computed but hidden part of the sweep |
+| **Revert to** | `13d7216` |
+
+The paper twice hand-waved that deviance "would eventually" turn up past $k=3$ but that it
+"is not shown." **It was never un-run — it was un-plotted:** `seq_ks <- 1:30/8` already fits
+every model out to $k = 3.75$, and the figures just `filter(k <= 2.5)` (`R/models.R`).
+
+**Finding that shaped the fix:** I first intended to extend the existing 4-panel figure, but
+checking the full sweep showed **dispersion is non-monotonic** — it peaks at $\phi \approx 1.03$
+near $k=2$ then falls *back* to $0.97$ by $k=3.75$. Extending the composed figure would have
+contradicted the paper's "overdispersed as $k$ grows" narrative. Deviance, by contrast, has a
+clean shallow minimum. So I added a **separate deviance-only** full-sweep plot and left the
+main figure (and its dispersion story) untouched.
+
+```r
+# R/models.R — new object, built from the UNFILTERED df_sd
+dev_plot_full <- df_sd %>% ggplot(aes(x = k, y = deviance, ...)) + geom_point()+geom_line() + ...
+```
+```diff
+@@ Results Overview: Score Model @@
+- ...This is one weakness of this model... While it is not shown, extrapolating further beyond
+- $k = 3$ would eventually show that the deviance starts to increase...
++ ...This is one weakness of this model... Extending the sweep out to $k = 3.75$ (shown below)
++ confirms this: the deviance reaches a shallow minimum near $k \approx 2.75$ before rising
++ again, as the score statistic loses its grip on the actual data...
++
++ ```{r}  if(plot){dev_plot_full}  ```   (new figure)
+
+@@ Results Overview: Quantile Model @@
+- Although it was not displayed in the previous plots, this resembles the last model, where the
+- deviance started to pick up again after $k \gg 2.5$.
++ This mirrors the $k$-SD model above, whose deviance we saw pick up again past its shallow
++ minimum near $k \approx 2.75$.
+```
+
+**Verified numerically and visually.** Deviance (family=All): 402.6 at $k{=}2$ → min **400.0**
+at $k\approx2.75$ → 402.5 at $k{=}3.75$. Both the All and None curves show the same shallow U in
+the rendered figure. The rise is **real but gentle** (~2.5 deviance units), and the prose says
+so rather than overstating it.
+
+**One caught defect:** the plot title used an em dash, which the ggplot device font renders as
+`...`. Changed to parentheses. (Lesson: unicode punctuation inside plot *images* isn't covered
+by the LaTeX font.)
