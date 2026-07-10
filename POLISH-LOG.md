@@ -273,3 +273,74 @@ Chunks already within the text block (`fig.width` 4 and 6) were left alone.
   retire them: they concern **coefficient significance** and an **un-run extrapolation beyond
   $k = 3$**. Substantiating those needs a coefficient table and a new model run — that is new
   analysis, not polish, so it was deliberately left undone. See *Remaining work*.
+
+---
+
+## Iteration 5 — Rigor: justify the skew → lower-quantile step
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 17 pp, 2,442,730 B |
+| **Touches claims** | ✅ **YES — this adds new reasoning. Read before keeping.** |
+| **Revert to** | `434e3b5` |
+
+> ### ⚠ Authorship notice
+> **This paragraph is new. It was not in the original paper.** The boundedness argument came
+> out of a conversation with Claude, not from the original analysis. It is confined to a
+> single added paragraph in *Statistical Evidence* and to this one commit, so
+> `git revert <this commit>` removes it cleanly and leaves iterations 1–4 intact.
+> Keep it only if you're comfortable presenting the reasoning as your own.
+
+The paper asserted a step it never justified: *"As negative skew implies larger left-tails,
+this could explain why lower quantiles are reliably larger."* That is hand-wavy as stated —
+skew does not, in general, dictate quantile behavior. What makes it true **here** is that
+humidity is *bounded*, which mechanically couples the mean to the sign of the skew.
+
+```diff
+@@ L95 · Statistical Evidence @@
+  ...this could explain why lower quantiles are reliably larger for complex languages
+  (which we already take to observe larger MH).
++
++ This coupling is not an accident of our sample. Humidity is a bounded quantity: it cannot
++ fall below zero, and at a given temperature it is capped by saturation. For a bounded
++ variable, the position of the mean within the support strongly constrains the sign of the
++ skew. If the mean sits near the floor, there is little room for mass to its left, and a
++ long tail is available only to its right, forcing positive skew; if the mean sits near the
++ ceiling, the asymmetry reverses. The Beta family illustrates this cleanly: its skewness is
++ positive exactly when its mean lies below the midpoint of the support, passes through zero
++ in the symmetric case, and turns negative above it. A strongly negative
++ corr(mu_H, skew_H) is therefore the expected signature of boundedness rather than a
++ coincidence — and it is this structural coupling that makes it plausible for the upper tail
++ to encode information about the lower one, which is the possibility we pursue in the
++ remainder of this paper.
+```
+
+**Notes**
+
+- The Beta claim is exact: for $\text{Beta}(\alpha,\beta)$, skewness $> 0 \iff \alpha < \beta
+  \iff \mu < 1/2$. Sign of skew flips precisely as the mean crosses the symmetric midpoint.
+- Deliberately hedged. "Strongly constrains," not "determines" — a bounded support makes
+  mean-near-floor $\Rightarrow$ positive skew overwhelmingly likely, but this is a structural
+  tendency, not a theorem for every bounded distribution.
+- The observed $-0.71$ has the **sign boundedness predicts** (mean up $\Rightarrow$ skew down),
+  which is why it reads as a mechanism rather than a curiosity.
+
+---
+
+# Remaining work (deliberately not done)
+
+The loop stopped here. These are real, but each is **new analysis, not polish**, and doing
+them autonomously would have meant fabricating results or making research judgments:
+
+1. **Three "not shown" claims** (L245, L247, L276). Retiring them honestly requires printing a
+   coefficient table (for the significance claim) and actually running the $k > 3$
+   extrapolation (for the deviance-turnaround claim). Currently the reader is asked to take
+   both on trust.
+2. **The family-predictor confound is still unresolved.** The paper selects families by
+   negative coefficient and then justifies them post hoc — the reverse-engineering worry it
+   raises about itself. An LRT or AIC comparison against the no-family models would settle
+   whether the indicators earn their place. Left open because the paper is *honest* that it is
+   open.
+3. **"Genealogically connected"** (see Iteration 2). Austronesian, Austro-Asiatic, and
+   Trans-New Guinea are distinct families; they are areally, not genealogically, clustered.
+   The family argument leans on this sentence. **Recommend fixing.**
