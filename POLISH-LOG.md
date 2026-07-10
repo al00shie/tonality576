@@ -344,3 +344,63 @@ them autonomously would have meant fabricating results or making research judgme
 3. **"Genealogically connected"** (see Iteration 2). Austronesian, Austro-Asiatic, and
    Trans-New Guinea are distinct families; they are areally, not genealogically, clustered.
    The family argument leans on this sentence. **Recommend fixing.**
+
+---
+
+# Round 2 — branch `polish-round-2`, reviewed via PR
+
+Round 1 (iterations 1–5) is already merged on `main`. Round 2 runs on an isolated branch;
+the anchor is `pre-polish-2` (`fbb5341`, = round-1 head). Scope this round: **prose + fill the
+gaps.** New-analysis iterations are isolated one-per-commit so any can be dropped without
+disturbing the others, and the whole round is gated behind the PR before it reaches `main`.
+
+## Iteration 6 — Deeper prose pass & the genealogy correction
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 17 pp |
+| **Touches claims** | ⚠ one **factual correction** (genealogy); the rest is grammar/register |
+| **Revert to** | `fbb5341` (branch base) |
+
+The long-flagged genealogy error is fixed, plus five sentence-level repairs round 1 didn't
+reach.
+
+```diff
+@@ Dispersion & Family Predictors · the genealogy fix @@
+- Our language families of Austronesian, Austro-Asiatic, and Trans-New Guinea are isolated
+- languages, which is worth noting, and given that they are genealogically connected, they
+- also form a cluster.
++ Our language families of Austronesian, Austro-Asiatic, and Trans-New Guinea are relatively
++ isolated and geographically concentrated, which is worth noting. They are distinct families
++ rather than a single genealogical group, but their areal proximity — clustered in and around
++ insular and mainland Southeast Asia and New Guinea — means the grouping could still reflect
++ shared history through contact, alongside inheritance within each family.
+
+@@ Introduction · roadmap redundancy @@
+- ...we arrive at the authors' hypothesis. Now, we dive into the background to understand and
+- contextualize the authors' hypothesis. Afterwards, we discuss what statistical evidence the
+- authors already provide, and discuss our contribution afterwards. That being said, we begin
+- with our discussion on phonemic tone.
++ ...we arrive at the authors' hypothesis. Afterwards, we review the statistical evidence they
++ already provide and outline our own contribution. That being said, we begin with phonemic tone.
+
+@@ Phonemic Tone @@
+- In other words, the auditory input judged by a listener...   (2nd "In other words" in the ¶)
++ Concretely, the auditory input judged by a listener...
+- implying the need of specific conditions that are conducive for accurate pitch manipulation...
++ implying the need for specific conditions conducive to accurate pitch manipulation...
+
+@@ The Authors' Hypothesis @@
+- The authors predict or hypothesize "that languages should not be maladaptive..."
++ The authors hypothesize "that languages should not be maladaptive..."
+- ...do not predict complex languages necessarily emerge in humid regions, they predict that...
++ ...do not predict that complex languages necessarily emerge in humid regions; rather, they
++  predict that...   (comma splice → semicolon)
+```
+
+**Notes**
+
+- The genealogy fix **corrects a factual error** rather than just polishing prose: the three
+  families are areally clustered (SE Asia / New Guinea), not genealogically related. The
+  confounding argument the sentence was making is preserved — contact and within-family
+  inheritance can still produce the cluster — but it no longer overstates the relationship.
