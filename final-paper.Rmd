@@ -145,7 +145,7 @@ for lang in languages{
 }
 ```
 
-```{r, fig.height = 4, fig.width = 7}
+```{r, fig.height = 4, fig.width = 7, out.width = "100%"}
 if(plot){humidity_tonality_map()}
 ```
 
@@ -153,11 +153,11 @@ if(plot){humidity_tonality_map()}
 
 ## Data Visualization
 
-```{r, fig.height = 3,fig.width = 8}
+```{r, fig.height = 3,fig.width = 8, out.width = "100%"}
 if(plot){(TH_boxplot + TH_density)}
 ```
 
-```{r, fig.height = 3,fig.width = 8}
+```{r, fig.height = 3,fig.width = 8, out.width = "100%"}
 if(plot){(EQ_scatter)}
 ```
 
@@ -232,11 +232,11 @@ Below, we find our plots summarizing our parameterized model results. On the top
 
 Additionally, the shape aesthetic is used to delineate the inclusion/exclusion of our family predictors. Also, a dashed red line is added to reference the theoretical binomial dispersion of $\phi = 1$. With regards to the bottom row, we observe two plots regarding the family indicator predictors. On the left, we observe the estimates of the coefficients, which are placed on an inverted axis to emphasize their magnitudes or effect sizes. In black, we have a faint line showing the average size of all these coefficients, giving a rough sense in which how much the family predictors weigh in the model overall. On the right, we simply have the predictor values used for each family, placed for reference. 
 
-```{r, fig.height = 3.5, fig.width = 9}
+```{r, fig.height = 3.5, fig.width = 9, out.width = "100%"}
 if(plot){disp_plot + dev_plot}
 ```
 
-```{r, fig.height = 3.5, fig.width = 9}
+```{r, fig.height = 3.5, fig.width = 9, out.width = "100%"}
 if(plot){coef_plot_k + mean_plot_k}
 ```
 
@@ -259,11 +259,11 @@ $$\textbf{1}_{\text{Complex}} \sim \mu^{(2.5\%)}_{q}$$
 
 Below, we find our plots summarizing our parameterized model results, exactly in the same format as the previous set of models. The primary difference is in the axis, which has our "extremity" parameter $q$, representing the center quantile of our averaged range. A grey vertical bar is placed for reference for $\mu^{(2.5\%)}_{75}$ for no specific reason other than reference; however, it is worth noting that $q = 75$ is approximately the quantile parameter where our deviance reduction effect begins to taper off. Additionally, unlike the previous model, no parameter achieves a dispersion of $\phi = 1$, so the dashed red line is omitted. 
 
-```{r, fig.height = 3.5, fig.width = 9}
+```{r, fig.height = 3.5, fig.width = 9, out.width = "100%"}
 if(plot){disp_plot_Q + dev_plot_Q}
 ```
 
-```{r, fig.height = 3.5, fig.width = 9}
+```{r, fig.height = 3.5, fig.width = 9, out.width = "100%"}
 if(plot){coef_plot_q + mean_plot_q}
 ```
 
@@ -295,13 +295,14 @@ Lastly, we conclude our discussion on the language predictors. The addition of t
 
 Some explanations include genealogy (clustering), since languages inherit tonal systems. Also, as mentioned, isolation from other languages could put them in a separate class. Lastly, sociolinguistic phenomena such as population size could introduce confounding variables that have already been linked to linguistic features, such as complex morphology. In the end, whether the inclusion of these predictors is well-specified remains an open question.
 
+For completeness, we close this section with the diagnostics underlying the arguments above. The first row plots humidity skewness against its standard deviation, alongside the distribution of skewness by tonality type. The second row plots the mean residual intra-group disparity against each extremity parameter — the very disparity that drives the dispersion behavior described above.
 
-```{r, fig.width = 9}
-#if(T){skewness_sd_scatterplot + skewness_histogram}
+```{r, fig.width = 9, fig.height = 3, out.width = "100%"}
+if(plot){skewness_sd_scatterplot + skewness_histogram}
 ```
 
-```{r, fig.width = 9, fig.height = 2}
-#if(plot){residual_scatterplot_q + residual_scatterplot_k}
+```{r, fig.width = 9, fig.height = 3, out.width = "100%"}
+if(plot){residual_scatterplot_q + residual_scatterplot_k}
 ```
 
 
@@ -323,7 +324,7 @@ As shown in our logistic GLMs, the $k$ score statistic is less stable and ground
 
 Just like in our logistic GLM models with the deviances, we can see a continuous relationship, where the mean curve appears to be "twisted" in either direction, and approaches the minimum and maximum for lower and higher values of $q$, respectively. Most critically, we notice that as $q$ increases and the curve tends towards the maximum, it attains a noticeably higher level of convexity, which in survival modeling, corresponds to more information.
 
-```{r, fig.height = 3, fig.width = 8.5}
+```{r, fig.height = 3, fig.width = 8.5, out.width = "100%"}
 # 3.5,8.5
 if(plot){CDF_plot}
 ```

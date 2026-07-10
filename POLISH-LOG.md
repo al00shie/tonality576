@@ -206,3 +206,70 @@ passage in the paper.
   The closing "secret beautiful gems... !" flourish is gone, but the closing *idea* — that
   deterministic structure is what makes the recovery possible — is preserved.
 - `-- ` (a literal double hyphen) replaced with a true em dash.
+
+---
+
+## Iteration 4 — Restore dropped evidence, and fix a document-wide figure-clipping bug
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, **16 pp** (was 19), 2,4xx,xxx B |
+| **Touches claims** | ❌ no — restores figures and stops LaTeX cropping them |
+| **Revert to** | `5130348` |
+
+Two things, one of which was not on the original plan and is the most consequential change in
+this whole loop.
+
+### 4.1 — Restored the two commented-out evidence chunks
+
+Both were verified to resolve first: `residual_scatterplot_q` / `residual_scatterplot_k` are
+defined at `R/models.R:277,293`, and `skewness_histogram` / `skewness_sd_scatterplot` at
+`R/plot.R:17,58`. The residual plots show **mean residual intra-group disparity** against each
+extremity parameter — which is exactly the $y{=}1$ vs $y{=}0$ disparity the dispersion argument
+asserts but previously never displayed.
+
+```diff
+@@ L299–305 · Dispersion & Family Predictors @@
++ For completeness, we close this section with the diagnostics underlying the arguments
++ above. The first row plots humidity skewness against its standard deviation, alongside
++ the distribution of skewness by tonality type. The second row plots the mean residual
++ intra-group disparity against each extremity parameter — the very disparity that drives
++ the dispersion behavior described above.
+
+- #if(T){skewness_sd_scatterplot + skewness_histogram}
++ if(plot){skewness_sd_scatterplot + skewness_histogram}
+
+- #if(plot){residual_scatterplot_q + residual_scatterplot_k}
++ if(plot){residual_scatterplot_q + residual_scatterplot_k}
+```
+
+### 4.2 — 🔴 Figures were being cropped by LaTeX. All of them.
+
+Visual verification of the rendered PDF (not just "did it knit") caught this. With
+`pdf_document` on letter paper at 1in margins, the text block is **6.5 in**. No chunk set
+`out.width`, so every graphic was placed at its natural `fig.width` and **silently cropped at
+the right margin**. Ten chunks were affected — widths 7, 8, 8.5 and 9 in.
+
+The damage was not cosmetic:
+
+> On the *k*-SD figure, the x-axis was cut at $k \approx 1.7$. The paper's central claim is
+> that deviance **"tapers off near $\chi^2 = 405$ around our critical point $k = 2$."**
+> $k = 2$, the reference line, the taper, and the colorbar legend were all **off the printed
+> page.** The same was true of the $q$-window figures and the family-coefficient panels.
+
+```diff
+@@ 10 chunk headers · L148,156,160,235,239,262,266,300,304,327 @@
+- ```{r, fig.height = 3.5, fig.width = 9}
++ ```{r, fig.height = 3.5, fig.width = 9, out.width = "100%"}
+```
+
+Chunks already within the text block (`fig.width` 4 and 6) were left alone.
+
+**Notes**
+
+- **Page count fell 19 → 16.** Scaling wide graphics to the text block makes them shorter; no
+  content was removed.
+- **Three "not shown" statements remain** (L245, L247, L276). Restoring these plots does *not*
+  retire them: they concern **coefficient significance** and an **un-run extrapolation beyond
+  $k = 3$**. Substantiating those needs a coefficient table and a new model run — that is new
+  analysis, not polish, so it was deliberately left undone. See *Remaining work*.
