@@ -102,8 +102,6 @@ if(plot){skewness_scatterplot}
 
 This is what motivates our exploration of the larger quantiles, in the same inferential framework of using humidity to explain complex tonality. Namely, we would like to know whether the higher percentiles at the right-tails of the humidity distributions have comparatively greater explanatory power. As such, we construct two different humidity statistics in this paper, parameterized in such a way to capture "extremity" of quantiles, and we explore model performance as that parameter increases (and henceforth uses more extreme quantiles).
 
-\newpage
-
 # The Data
 
 ## Linguistic Data
@@ -205,9 +203,7 @@ With these two statistics established, we fit our logistic models, varying these
 
 Lastly, we construct a "null survival" model to alternatively capture the author's hypothesis in a direct and visual way. It is important to note this is a divergence or extrapolation of survival models in the normal sense, since our model is not temporal, but rather, observed through the axis of "aridity". Our goal is to show that complex tone does not "survive" in arid conditions. To further clarify, we are not working with any predictors, so we call this a "null survival model" because we are interested in estimating the *baseline hazard rate* over the aridity axis. As such, we later define some *modular* notion of aridity $d_\theta$ (derived from some humidity statistic $\theta$) from which we estimate the baseline hazard rate
 $$\lambda(d_\theta) \sim \textbf{0}_{\text{Complex}}$$ 
-through the indicator step function where failures are observed non-complex languages (i.e. observed "losses" or "failures" to obtain of complex tonality). In the end, we end up with a interpretable model, with direct allusion into the authors' hypothesis, and numerical estimates we could work interpret.
-
-\newpage
+through the indicator step function, where a failure is an observed non-complex language (i.e. an observed "loss" or "failure" to obtain complex tonality). In the end, we arrive at an interpretable model, with a direct allusion to the authors' hypothesis and numerical estimates we can work with.
 
 # Discussion & Results
 
@@ -219,7 +215,7 @@ The models below were constructed to comparatively investigate the explanatory p
 
 While perfect separation by humidity is not possible, and actually not expected, the logistic GLM remains a powerful tool to assess the power of continuous predictors in explaining dichotomous or polytomous response variables. That is, despite the significant overlap between the two tonal categories, the model still gives us a gateway to *comparatively* assess predictor performance by seeing which ones best minimize loss over all of our observations in aggregate, despite the significant overlap. As such, we should not be surprised to find that the fitted values in our models rarely exceeded $p = 0.5$, a minimum fitted value one would hope for if they were constructing a classifier. So, this would create an estimator with terrible specificity / classification rate, because our data is not structured in a way pliable to class separability. All of this is to say, logistic GLM models still provide a versatile and powerful tool to comparatively assess continuous predictors in explaining indicator response variables, irrespective of class separability. In our case, we leverage this tool to *comparatively* assess different upper-quantile humidity statistics in their ability to explain complex tonality.
 
-That being said, we begin with the discussion of the $k$-SD score models. After that, we cover the quantile window models. In the end of our discussion of logistic GLMs, we talk about dispersion and the family predictors for all of our models overall, and their inferential implications. Afterwards, we talk about our 'null survival' models, and move on to our conclusion.
+That being said, we begin with the discussion of the $k$-SD score models. After that, we cover the quantile window models. At the end of our discussion of logistic GLMs, we talk about dispersion and the family predictors for all of our models overall, and their inferential implications. Afterwards, we talk about our 'null survival' models, and move on to our conclusion.
 
 ## k-SD Score Model
 

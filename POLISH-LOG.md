@@ -567,3 +567,47 @@ nothing is hard-coded.
 resolving (not just testing) the family confound would need a pre-registered family grouping or
 an out-of-sample check to escape the post-selection circularity. The paper is now honest and
 quantified about exactly this.
+
+---
+
+## Iteration 10 — Presentability pass (from a full read-through of the compiled PDF)
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, **17 pp** (was 18), every page re-scanned for near-empty gaps |
+| **Touches claims** | ❌ no — grammar + layout only |
+| **Revert to** | `405287a` |
+
+A page-by-page read of the compiled output turned up three fixable blemishes.
+
+**(a) Two near-empty pages (4 and 9).** Each was an orphaned 3–4 line paragraph tail followed
+by a forced `\newpage` before a major section, leaving most of the page blank. Removed the two
+offending `\newpage`s (before *The Data* and *Discussion & Results*). Auto-scan confirms both
+pages are now full (2.7k / 3.4k chars) and no *new* near-empty page was introduced. The six
+intentional `\newpage`s (title page, section starts that don't orphan) were kept.
+
+**(b) One rough sentence** (Null Survival Model intro):
+```diff
+- through the indicator step function where failures are observed non-complex languages
+- (i.e. observed "losses" or "failures" to obtain of complex tonality). In the end, we end up
+- with a interpretable model, with direct allusion into the authors' hypothesis, and numerical
+- estimates we could work interpret.
++ through the indicator step function, where a failure is an observed non-complex language
++ (i.e. an observed "loss" or "failure" to obtain complex tonality). In the end, we arrive at an
++ interpretable model, with a direct allusion to the authors' hypothesis and numerical
++ estimates we can work with.
+```
+(Fixes *a→an*, "to obtain of", "allusion into", and the garbled "work interpret".)
+
+**(c) Two nits.** "In the end of our discussion" → "At the end of our discussion"; and the two
+EDA plots that both read "Tonal System by Humidity" — the density panel is now "Humidity
+Density by Tonal System" (`R/plot.R`).
+
+**Known-and-left:** page 12 is the q-Window 4-panel figure with blank space below it — a float
+artifact, much milder than the orphan pages. Forcing it would mean shrinking those panels out of
+sync with the k-SD figure, so it stays.
+
+---
+
+**Round 2 merged to `main` after this iteration.** Full revert of both rounds: `git reset --hard
+pre-polish` (`b094232`). Revert round 2 only: `git reset --hard pre-polish-2` (`fbb5341`).

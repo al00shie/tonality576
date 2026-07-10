@@ -141,7 +141,7 @@ TH_density <-
   ggplot(mapping = aes(x = MH, group = tonality_type, color = tonality_type)) +
   geom_density() +
   scale_color_manual("Tonality Type", values = c("dodgerblue3","orange","gold")) + 
-  labs(x = "Mean Humidity", title = "Tonal System by Humidity") +
+  labs(x = "Mean Humidity", title = "Humidity Density by Tonal System") +
   theme(legend.position = "none")
 
 # Boxplot: Tonal System & MH
