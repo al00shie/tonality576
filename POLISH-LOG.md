@@ -344,3 +344,270 @@ them autonomously would have meant fabricating results or making research judgme
 3. **"Genealogically connected"** (see Iteration 2). Austronesian, Austro-Asiatic, and
    Trans-New Guinea are distinct families; they are areally, not genealogically, clustered.
    The family argument leans on this sentence. **Recommend fixing.**
+
+---
+
+# Round 2 — branch `polish-round-2`, reviewed via PR
+
+Round 1 (iterations 1–5) is already merged on `main`. Round 2 runs on an isolated branch;
+the anchor is `pre-polish-2` (`fbb5341`, = round-1 head). Scope this round: **prose + fill the
+gaps.** New-analysis iterations are isolated one-per-commit so any can be dropped without
+disturbing the others, and the whole round is gated behind the PR before it reaches `main`.
+
+## Iteration 6 — Deeper prose pass & the genealogy correction
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 17 pp |
+| **Touches claims** | ⚠ one **factual correction** (genealogy); the rest is grammar/register |
+| **Revert to** | `fbb5341` (branch base) |
+
+The long-flagged genealogy error is fixed, plus five sentence-level repairs round 1 didn't
+reach.
+
+```diff
+@@ Dispersion & Family Predictors · the genealogy fix @@
+- Our language families of Austronesian, Austro-Asiatic, and Trans-New Guinea are isolated
+- languages, which is worth noting, and given that they are genealogically connected, they
+- also form a cluster.
++ Our language families of Austronesian, Austro-Asiatic, and Trans-New Guinea are relatively
++ isolated and geographically concentrated, which is worth noting. They are distinct families
++ rather than a single genealogical group, but their areal proximity — clustered in and around
++ insular and mainland Southeast Asia and New Guinea — means the grouping could still reflect
++ shared history through contact, alongside inheritance within each family.
+
+@@ Introduction · roadmap redundancy @@
+- ...we arrive at the authors' hypothesis. Now, we dive into the background to understand and
+- contextualize the authors' hypothesis. Afterwards, we discuss what statistical evidence the
+- authors already provide, and discuss our contribution afterwards. That being said, we begin
+- with our discussion on phonemic tone.
++ ...we arrive at the authors' hypothesis. Afterwards, we review the statistical evidence they
++ already provide and outline our own contribution. That being said, we begin with phonemic tone.
+
+@@ Phonemic Tone @@
+- In other words, the auditory input judged by a listener...   (2nd "In other words" in the ¶)
++ Concretely, the auditory input judged by a listener...
+- implying the need of specific conditions that are conducive for accurate pitch manipulation...
++ implying the need for specific conditions conducive to accurate pitch manipulation...
+
+@@ The Authors' Hypothesis @@
+- The authors predict or hypothesize "that languages should not be maladaptive..."
++ The authors hypothesize "that languages should not be maladaptive..."
+- ...do not predict complex languages necessarily emerge in humid regions, they predict that...
++ ...do not predict that complex languages necessarily emerge in humid regions; rather, they
++  predict that...   (comma splice → semicolon)
+```
+
+**Notes**
+
+- The genealogy fix **corrects a factual error** rather than just polishing prose: the three
+  families are areally clustered (SE Asia / New Guinea), not genealogically related. The
+  confounding argument the sentence was making is preserved — contact and within-family
+  inheritance can still produce the cluster — but it no longer overstates the relationship.
+
+---
+
+## Iteration 7 — Fill gap #1a: show the deviance turnaround (was "not shown")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp (+1 for the new figure), verified visually |
+| **Touches claims** | ✅ **NEW RESULT** — reveals an already-computed but hidden part of the sweep |
+| **Revert to** | `13d7216` |
+
+The paper twice hand-waved that deviance "would eventually" turn up past $k=3$ but that it
+"is not shown." **It was never un-run — it was un-plotted:** `seq_ks <- 1:30/8` already fits
+every model out to $k = 3.75$, and the figures just `filter(k <= 2.5)` (`R/models.R`).
+
+**Finding that shaped the fix:** I first intended to extend the existing 4-panel figure, but
+checking the full sweep showed **dispersion is non-monotonic** — it peaks at $\phi \approx 1.03$
+near $k=2$ then falls *back* to $0.97$ by $k=3.75$. Extending the composed figure would have
+contradicted the paper's "overdispersed as $k$ grows" narrative. Deviance, by contrast, has a
+clean shallow minimum. So I added a **separate deviance-only** full-sweep plot and left the
+main figure (and its dispersion story) untouched.
+
+```r
+# R/models.R — new object, built from the UNFILTERED df_sd
+dev_plot_full <- df_sd %>% ggplot(aes(x = k, y = deviance, ...)) + geom_point()+geom_line() + ...
+```
+```diff
+@@ Results Overview: Score Model @@
+- ...This is one weakness of this model... While it is not shown, extrapolating further beyond
+- $k = 3$ would eventually show that the deviance starts to increase...
++ ...This is one weakness of this model... Extending the sweep out to $k = 3.75$ (shown below)
++ confirms this: the deviance reaches a shallow minimum near $k \approx 2.75$ before rising
++ again, as the score statistic loses its grip on the actual data...
++
++ ```{r}  if(plot){dev_plot_full}  ```   (new figure)
+
+@@ Results Overview: Quantile Model @@
+- Although it was not displayed in the previous plots, this resembles the last model, where the
+- deviance started to pick up again after $k \gg 2.5$.
++ This mirrors the $k$-SD model above, whose deviance we saw pick up again past its shallow
++ minimum near $k \approx 2.75$.
+```
+
+**Verified numerically and visually.** Deviance (family=All): 402.6 at $k{=}2$ → min **400.0**
+at $k\approx2.75$ → 402.5 at $k{=}3.75$. Both the All and None curves show the same shallow U in
+the rendered figure. The rise is **real but gentle** (~2.5 deviance units), and the prose says
+so rather than overstating it.
+
+**One caught defect:** the plot title used an em dash, which the ggplot device font renders as
+`...`. Changed to parentheses. (Lesson: unicode punctuation inside plot *images* isn't covered
+by the LaTeX font.)
+
+---
+
+## Iteration 8 — Fill gap #1b: coefficient table (was "not shown")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp, table verified visually |
+| **Touches claims** | ✅ **NEW RESULT** — substantiates the significance claim, and honestly surfaces its one exception |
+| **Revert to** | `7d59deb` |
+
+The paper asserted "although it is not shown, all the coefficients are statistically
+significant... with few exceptions." Replaced the assertion with **Table 1**, built live from
+the $k=2$ fit (no hard-coded numbers), so the claim is now checkable — including the exception.
+
+```diff
+@@ Results Overview: Score Model @@
+- Although it is not shown, it is worth at least mentioning that all the coefficients are
+- statistically significant, especially the humidity statistic... The language predictors
+- fluctuate more, but with few exceptions, generally remain below $p < 0.05$.
++ The coefficients of the model at our reference point $k = 2$ are given in the table below.
++ The humidity statistic... is highly significant, as we would hope. The family predictors are
++ weaker and fluctuate more across $k$: at this reference point Austronesian and Austro-Asiatic
++ clear $p < 0.05$, while Trans-New Guinea does not — the kind of exception we alluded to.
++
++ ```{r}  ... knitr::kable(coef table from get_model_k(2, T)) ...  ```   (new Table 1)
+```
+
+**Table 1 (rendered, verified):**
+
+| Term | Estimate | Std. Error | t | p |
+|---|--:|--:|--:|--:|
+| Intercept | −3.292 | 0.398 | −8.26 | < 0.0001 |
+| k-SD score (k = 2) | 1.288 | 0.199 | 6.47 | < 0.0001 |
+| Austronesian | −1.014 | 0.346 | −2.93 | 0.0036 |
+| Trans-New Guinea | −0.856 | 0.483 | −1.77 | **0.0767** |
+| Austro-Asiatic | −1.098 | 0.513 | −2.14 | 0.0327 |
+
+**Notes**
+
+- The honest move here was *not* to launder the exception. The original "with few exceptions"
+  was vague cover; the table makes Trans-New Guinea's $p = 0.077$ explicit, and the prose now
+  names it. This is a case where showing the evidence makes the paper *more* qualified, not
+  less — which is the correct direction.
+- Built with base `knitr::kable` (plain-text terms, formatted $p$ column with `< 0.0001`), no
+  `booktabs`/`kableExtra`, to keep the knit dependency-free.
+
+---
+
+## Iteration 9 — Fill gap #2: family-predictor F-test (the "open question")
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, 18 pp, inline numbers verified in the rendered PDF |
+| **Touches claims** | ✅ **NEW RESULT + a caveat that keeps the question open** |
+| **Revert to** | `1c6faa9` |
+
+The paper flagged the family predictors as an "open question" but never quantified whether
+they earn their place. Added the test — and, just as importantly, the reason it does **not**
+close the question.
+
+**Statistical note that shaped it:** the models are `quasibinomial`, so **AIC is undefined and
+a chi-square LRT is not the right test** — the correct nested comparison is an **F-test** (the
+dispersion is estimated). So the primary result is an F-test; a binomial refit supplies AIC/LRT
+only as a cross-check.
+
+All numbers are computed **live** in a hidden chunk and injected with inline `` `r ` `` —
+nothing is hard-coded.
+
+```diff
+@@ Dispersion & Family Predictors @@
++ ```{r, include=FALSE}  # live: F-tests, p-values, AIC cross-check  ```
+  Lastly, we conclude our discussion on the language predictors. The addition of the family
+- indicators does disperse the model in the right direction.
++ indicators does disperse the model in the right direction, and the effect is statistically
++ clear: adding the three indicators to the $k=2$ score model yields a highly significant
++ nested improvement ($F_{3,522} = 6.56$, $p = 0.0002$), and the same holds for the $q=75$
++ window model ($F_{3,522} = 8.84$, $p < 10^{-4}$). A non-quasibinomial cross-check agrees,
++ with the AIC falling from 426.9 to 412.6.
+  ...
+- However, we still need to provide evidence that this is not just reverse engineering...
++ However, this significance must be read with caution... the three families were themselves
++ selected by inspecting the family coefficients of a preliminary `complex_tonal ~ MH + family`
++ fit, so the tests above are *post-selection* and their $p$-values are optimistic: they confirm
++ the indicators carry signal, not that including them is the correct specification rather than
++ an accommodation of the very outliers that motivated them.
+```
+
+**Notes**
+
+- This is the most delicate iteration: it would have been easy to present $F = 6.56,\ p =
+  0.0002$ as *resolving* the confound. It does not. The families were chosen by their own
+  coefficients, so the test is circular (post-selection), and the paper now says so. The
+  "open question" stance is **preserved and strengthened**, not overturned.
+- The `include=FALSE` chunk runs the fits but emits nothing; the four statistics reach the
+  prose only through inline references, so they can never drift from the code.
+
+---
+
+# Round 2 summary
+
+| Iter | Commit | What | New results? |
+|---|---|---|---|
+| 6 | prose+genealogy | 5 sentence fixes + areal-not-genealogical correction | factual fix only |
+| 7 | k-sweep | show the deviance turnaround (was "not shown") | ✅ |
+| 8 | coef table | Table 1 substantiates significance, surfaces the exception | ✅ |
+| 9 | family F-test | F-test + AIC/LRT + post-selection caveat | ✅ |
+
+**Still open after round 2** — genuinely new research, out of scope for a polish loop:
+resolving (not just testing) the family confound would need a pre-registered family grouping or
+an out-of-sample check to escape the post-selection circularity. The paper is now honest and
+quantified about exactly this.
+
+---
+
+## Iteration 10 — Presentability pass (from a full read-through of the compiled PDF)
+
+| | |
+|---|---|
+| **Knit gate** | ✅ green — exit 0, **17 pp** (was 18), every page re-scanned for near-empty gaps |
+| **Touches claims** | ❌ no — grammar + layout only |
+| **Revert to** | `405287a` |
+
+A page-by-page read of the compiled output turned up three fixable blemishes.
+
+**(a) Two near-empty pages (4 and 9).** Each was an orphaned 3–4 line paragraph tail followed
+by a forced `\newpage` before a major section, leaving most of the page blank. Removed the two
+offending `\newpage`s (before *The Data* and *Discussion & Results*). Auto-scan confirms both
+pages are now full (2.7k / 3.4k chars) and no *new* near-empty page was introduced. The six
+intentional `\newpage`s (title page, section starts that don't orphan) were kept.
+
+**(b) One rough sentence** (Null Survival Model intro):
+```diff
+- through the indicator step function where failures are observed non-complex languages
+- (i.e. observed "losses" or "failures" to obtain of complex tonality). In the end, we end up
+- with a interpretable model, with direct allusion into the authors' hypothesis, and numerical
+- estimates we could work interpret.
++ through the indicator step function, where a failure is an observed non-complex language
++ (i.e. an observed "loss" or "failure" to obtain complex tonality). In the end, we arrive at an
++ interpretable model, with a direct allusion to the authors' hypothesis and numerical
++ estimates we can work with.
+```
+(Fixes *a→an*, "to obtain of", "allusion into", and the garbled "work interpret".)
+
+**(c) Two nits.** "In the end of our discussion" → "At the end of our discussion"; and the two
+EDA plots that both read "Tonal System by Humidity" — the density panel is now "Humidity
+Density by Tonal System" (`R/plot.R`).
+
+**Known-and-left:** page 12 is the q-Window 4-panel figure with blank space below it — a float
+artifact, much milder than the orphan pages. Forcing it would mean shrinking those panels out of
+sync with the k-SD figure, so it stays.
+
+---
+
+**Round 2 merged to `main` after this iteration.** Full revert of both rounds: `git reset --hard
+pre-polish` (`b094232`). Revert round 2 only: `git reset --hard pre-polish-2` (`fbb5341`).

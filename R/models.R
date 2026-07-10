@@ -201,6 +201,20 @@ dev_plot <-
   theme(legend.position = "bottom") #+
   #ylim(c(399, 475))
 
+# Full sweep to k = 3.75 (unfiltered), to reveal the shallow deviance minimum near k ~ 2.75
+# and the gentle rise afterwards that the capped main figure hides.
+dev_plot_full <-
+  df_sd %>%
+  ggplot(mapping = aes(x = k, y = deviance, group = family, shape = family, color = k)) +
+  scale_shape_manual("Family Predictors", values = c("circle","triangle")) +
+  scale_colour_distiller(type = "div", palette = 7, guide = "none") +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = k_ref, linetype = type_vline, color = col_vline, alpha = 0.3) +
+  labs(title = "Deviance of k-SD Models (full sweep to k = 3.75)",
+       x = "k", y = "Deviance") +
+  theme(legend.position = "bottom")
+
 # =======================================
 #          Dispersion Discussion
 # =======================================
